@@ -27,36 +27,36 @@ class FilmControllerTest {
 
     @Test
     public void validateFilmNameBlank() {
-        Film film = new Film(1L,"","Описание фильма",LocalDate.now(),100);
-        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST,URI.create("http://localhost:" + port + "/films"));
+        Film film = new Film(1L, "", "Описание фильма", LocalDate.now(), 100);
+        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST, URI.create("http://localhost:" + port + "/films"));
         ResponseEntity<Film> exchange = this.restTemplate.exchange(requestEntity, Film.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void validateFilmDescription() {
-        Film film = new Film(1L,"",
+        Film film = new Film(1L, "",
                 "Пятеро друзей ( комик-группа «Шарло»), приезжают в город Бризуль. Здесь они хотят разыскать господина Огюста Куглова, который задолжал им деньги, а именно 20 миллионов. о Куглов, который за время «своего отсутствия», стал кандидатом Коломбани.\n"
-                ,LocalDate.now(),100);
-        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST,URI.create("http://localhost:" + port + "/films"));
+                , LocalDate.now(), 100);
+        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST, URI.create("http://localhost:" + port + "/films"));
         ResponseEntity<Film> exchange = this.restTemplate.exchange(requestEntity, Film.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void validateFilmReleaseDate() {
-        Film film = new Film(1L,"","Описание фильма",LocalDate.parse("1865-12-25"),100);
-        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST,URI.create("http://localhost:" + port + "/films"));
+        Film film = new Film(1L, "", "Описание фильма", LocalDate.parse("1865-12-25"), 100);
+        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST, URI.create("http://localhost:" + port + "/films"));
         ResponseEntity<Film> exchange = this.restTemplate.exchange(requestEntity, Film.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void validateFilmNegativeDuration() {
-        Film film = new Film(1L,"","Описание фильма",LocalDate.now(),-100);
-        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST,URI.create("http://localhost:" + port + "/films"));
+        Film film = new Film(1L, "", "Описание фильма", LocalDate.now(), -100);
+        RequestEntity<Film> requestEntity = new RequestEntity<>(film, HttpMethod.POST, URI.create("http://localhost:" + port + "/films"));
         ResponseEntity<Film> exchange = this.restTemplate.exchange(requestEntity, Film.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
 }

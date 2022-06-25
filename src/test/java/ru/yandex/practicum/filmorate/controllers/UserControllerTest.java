@@ -26,36 +26,36 @@ class UserControllerTest {
     private TestRestTemplate restTemplate;
 
     @Test
-    public void validateUserEmail(){
-        User user = new User(1L,"mail","login","name", LocalDate.now());
+    public void validateUserEmail() {
+        User user = new User(1L, "mail", "login", "name", LocalDate.now());
         RequestEntity<User> requestEntity = new RequestEntity<>(user, HttpMethod.POST, URI.create("http://localhost:" + port + "/users"));
         ResponseEntity<User> exchange = this.restTemplate.exchange(requestEntity, User.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
-    public void validateUserLoginBlank(){
-        User user = new User(1L,"mail@mail.ru"," ","name", LocalDate.now());
+    public void validateUserLoginBlank() {
+        User user = new User(1L, "mail@mail.ru", " ", "name", LocalDate.now());
         RequestEntity<User> requestEntity = new RequestEntity<>(user, HttpMethod.POST, URI.create("http://localhost:" + port + "/users"));
         ResponseEntity<User> exchange = this.restTemplate.exchange(requestEntity, User.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
-    public void validateUserNameBlank(){
-        User userNameBlank = new User(null,"mail@mail.ru","dolore"," ", LocalDate.now());
-        User userAssert = new User(1L,"mail@mail.ru","dolore","dolore", LocalDate.now());
+    public void validateUserNameBlank() {
+        User userNameBlank = new User(null, "mail@mail.ru", "dolore", " ", LocalDate.now());
+        User userAssert = new User(1L, "mail@mail.ru", "dolore", "dolore", LocalDate.now());
         RequestEntity<User> requestEntity = new RequestEntity<>(userNameBlank, HttpMethod.POST, URI.create("http://localhost:" + port + "/users"));
         ResponseEntity<User> exchange = this.restTemplate.exchange(requestEntity, User.class);
-        assertEquals(HttpStatus.OK,exchange.getStatusCode());
-        assertEquals(userAssert,exchange.getBody());
+        assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        assertEquals(userAssert, exchange.getBody());
     }
 
     @Test
-    public void validateUserBirthdayTomorrow(){
-        User user = new User(1L,"mail@mail.ru"," ","name", LocalDate.now().plusDays(1));
+    public void validateUserBirthdayTomorrow() {
+        User user = new User(1L, "mail@mail.ru", " ", "name", LocalDate.now().plusDays(1));
         RequestEntity<User> requestEntity = new RequestEntity<>(user, HttpMethod.POST, URI.create("http://localhost:" + port + "/users"));
         ResponseEntity<User> exchange = this.restTemplate.exchange(requestEntity, User.class);
-        assertEquals(HttpStatus.BAD_REQUEST,exchange.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 }
