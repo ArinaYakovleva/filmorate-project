@@ -20,7 +20,11 @@ public class Film extends Model {
     @Positive(message = "Длительность должна быть больше нуля")
     private int duration;
 
-    public Film(Long id, @NotBlank(message = "Наименование не может быть пустым") String name, @Size(max = 200, message = "Описание не должно превышать 200 символов") String description, LocalDate releaseDate, @Positive(message = "Длительность должна быть больше нуля") int duration) {
+    public Film(Long id,
+                @NotBlank(message = "Наименование не может быть пустым") String name,
+                @Size(max = 200, message = "Описание не должно превышать 200 символов") String description,
+                LocalDate releaseDate,
+                @Positive(message = "Длительность должна быть больше нуля") int duration) {
         super(id);
         this.name = name;
         this.description = description;

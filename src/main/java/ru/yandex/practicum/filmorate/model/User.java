@@ -20,7 +20,11 @@ public class User extends Model {
     @PastOrPresent(message = "Дата рождение не может быть из будущего")
     private LocalDate birthday;
 
-    public User(Long id, @Email(message = "Электронная почта должна содержать символ - @") String email, @NotBlank(message = "Имя пользователя не может быть пустым") String login, String name, @PastOrPresent(message = "Дата рождение не может быть из будущего") LocalDate birthday) {
+    public User(Long id,
+                @Email(message = "Электронная почта должна содержать символ - @") String email,
+                @NotBlank(message = "Имя пользователя не может быть пустым") String login,
+                String name,
+                @PastOrPresent(message = "Дата рождение не может быть из будущего") LocalDate birthday) {
         super(id);
         this.email = email;
         this.login = login;

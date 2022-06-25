@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 public class UserController extends BaseController<User> {
 
     @Override
-    void validate(User user) {
+    protected void validate(User user) {
         if (user.getName().isBlank()) user.setName(user.getLogin());
     }
 

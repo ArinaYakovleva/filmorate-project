@@ -43,6 +43,6 @@ public abstract class BaseController<T extends Model> implements CommonControlle
             throw new ValidationException("Id должен быть положительным числом", String.valueOf(data.getId()));
     }
 
-    abstract void validate(T data) throws ValidationException;
+    abstract protected void validate(T data) throws ValidationException;
 
 }

@@ -11,7 +11,7 @@ import java.time.LocalDate;
 public class FilmController extends BaseController<Film> {
 
     @Override
-    void validate(Film film) throws ValidationException {
+    protected void validate(Film film) throws ValidationException {
         if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-25")))
             throw new ValidationException("Дата релиза должна быть после 28 декабря 1895 года", String.valueOf(film.getReleaseDate()));
     }
