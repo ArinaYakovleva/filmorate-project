@@ -8,33 +8,41 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 @Slf4j
-public abstract class BaseController<T extends Model>{
+public abstract class BaseController<T extends Model> implements CommonController<T> {
 
-    private final HashMap<Long, T> filmHashMap = new HashMap<>();
+    private final HashMap<Long, T> dataHashMap = new HashMap<>();
     private Long generatorId = 0L;
 
-    protected T add(T element) throws ValidationException {
+    @Override
+    public T add(T data) throws ValidationException {
         generatorId++;
-        element.setId(generatorId);
-        baseValidate(element);
-        filmHashMap.put(generatorId, element);
-        log.info("Добавлен объект {}, {}", element.getClass(),element);
-        return element;
+        data.setId(generatorId);
+        baseValidate(data);
+        validate(data);
+        dataHashMap.put(generatorId, data);
+        log.info("Добавлен объект {}, {}", data.getClass(), data);
+        return data;
     }
 
-    protected T edit(T element) throws ValidationException {
-        baseValidate(element);
-        T oldElement = filmHashMap.put(element.getId(), element);
-        log.info("Объект изменен. Старое значение - {}. Новое значение - {}", oldElement, element);
-        return element;
+    @Override
+    public T edit(T data) throws ValidationException {
+        baseValidate(data);
+        validate(data);
+        T oldElement = dataHashMap.put(data.getId(), data);
+        log.info("Объект изменен. Старое значение - {}. Новое значение - {}", oldElement, data);
+        return data;
     }
 
-    protected ArrayList<T> getAll(){
-        return new ArrayList<>(filmHashMap.values());
+    @Override
+    public ArrayList<T> getAll() {
+        return new ArrayList<>(dataHashMap.values());
     }
 
-    private void baseValidate(T element) throws ValidationException {
-        if (element.getId() == null || element.getId() < 0)
-            throw new ValidationException("Id должен быть положительным числом", String.valueOf(element.getId()));
+    private void baseValidate(T data) throws ValidationException {
+        if (data.getId() == null || data.getId() < 0)
+            throw new ValidationException("Id должен быть положительным числом", String.valueOf(data.getId()));
     }
+
+    abstract void validate(T data) throws ValidationException;
+
 }
