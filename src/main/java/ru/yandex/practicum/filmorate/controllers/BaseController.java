@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Slf4j
 public abstract class BaseController<T extends Model> implements CommonController<T> {
@@ -34,7 +35,7 @@ public abstract class BaseController<T extends Model> implements CommonControlle
     }
 
     @Override
-    public ArrayList<T> getAll() {
+    public List<T> getAll() {
         return new ArrayList<>(dataHashMap.values());
     }
 
