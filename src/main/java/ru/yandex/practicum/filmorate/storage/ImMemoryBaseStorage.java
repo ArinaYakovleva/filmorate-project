@@ -6,11 +6,12 @@ import ru.yandex.practicum.filmorate.model.Model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public abstract class ImMemoryBaseStorage<T extends Model> implements BaseStorage<T> {
 
-    protected final HashMap<Long, T> dataHashMap = new HashMap<>();
+    protected final Map<Long, T> dataHashMap = new HashMap<>();
     private Long generatorId = 0L;
 
     @Override

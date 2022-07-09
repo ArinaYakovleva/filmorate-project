@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.ImMemoryBaseStorage;
@@ -8,9 +9,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class InMemoryUserStorage extends ImMemoryBaseStorage<User> implements UserStorage {
 
-    private final HashMap<Long, Set<User>> friendsHaspMap = new HashMap<>();
+    private final Map<Long, Set<User>> friendsHaspMap = new HashMap<>();
 
     @Override
     public void addFriend(Long userId, Long friendId) {
@@ -22,6 +24,7 @@ public class InMemoryUserStorage extends ImMemoryBaseStorage<User> implements Us
         Set<User> friendSet = friendsHaspMap.getOrDefault(friendId, new HashSet<>());
         friendSet.add(user);
         friendsHaspMap.put(friendId, friendSet);
+        log.info("Пользователь {} добавлен в друзья к {}", dataHashMap.get(friendId),dataHashMap.get(userId));
     }
 
     @Override
@@ -34,6 +37,7 @@ public class InMemoryUserStorage extends ImMemoryBaseStorage<User> implements Us
         Set<User> friendSet = friendsHaspMap.get(friendId);
         friendSet.remove(user);
         friendsHaspMap.put(friendId, friendSet);
+        log.info("Пользователь {} удален из друзей {}", dataHashMap.get(friendId),dataHashMap.get(userId));
     }
 
     @Override
