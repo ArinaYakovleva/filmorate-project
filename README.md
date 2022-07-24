@@ -42,5 +42,3 @@ Template repository for Filmorate project.
    SELECT friend_id FROM friends 
    WHERE user_id = 2; 
  );
-
-
