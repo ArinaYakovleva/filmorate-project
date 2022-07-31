@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.storage.ImMemoryBaseStorage;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+@Component("userStorageMemory")
 @Slf4j
 public class InMemoryUserStorage extends ImMemoryBaseStorage<User> implements UserStorage {
 

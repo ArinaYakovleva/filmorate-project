@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-@Component
+@Component("filmStorageMemory")
 @Slf4j
 public class InMemoryFilmStorage extends ImMemoryBaseStorage<Film> implements FilmStorage {
 

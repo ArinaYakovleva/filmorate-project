@@ -18,8 +18,8 @@ public abstract class BaseService<T extends Model, R extends BaseStorage<T>> imp
     @Override
     public T add(T data) {
         validate(data);
-        data.setId(storage.generateId());
-        baseValidate(data);
+        //data.setId(storage.generateId());
+        //baseValidate(data);
         return storage.add(data);
     }
 
