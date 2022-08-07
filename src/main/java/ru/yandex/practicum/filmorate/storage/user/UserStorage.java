@@ -7,10 +7,6 @@ import java.util.List;
 
 public interface UserStorage extends BaseStorage<User> {
 
-    void addFriend(Long userId, Long friendId);
-
-    void deleteFriend(Long userId, Long friendId);
-
     List<User> getListCommonFriend(Long userId, Long otherId);
 
     List<User> getListFriend(Long userId);

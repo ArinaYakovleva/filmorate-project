@@ -2,14 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.List;
 
 @Service
-public class GenreService {
+public class GenreService extends ValidateService {
 
     private final GenreStorage genreStorage;
 
@@ -23,12 +22,8 @@ public class GenreService {
     }
 
     public Genre getOne(Long id) {
-        baseValidate(id);
+        validateId(id);
         return genreStorage.getOne(id);
     }
 
-    private void baseValidate(Long id) {
-        if (id == null || id < 0)
-            throw new BadRequestException("Id должен быть положительным числом", String.valueOf(id));
-    }
 }

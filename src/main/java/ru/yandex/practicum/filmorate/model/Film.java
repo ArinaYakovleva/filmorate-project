@@ -8,8 +8,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -19,10 +19,10 @@ public class Film extends Model {
     private String name;
 
     @NonNull
-    private Long rate;
+    private Long rate = 0L;
     @NonNull
-    private Rating mpa;
-    private List<Genre> genres = new ArrayList<>();
+    private MPARating mpa;
+    private Set<Genre> genres = new HashSet<>();
 
     @Size(max = 200, message = "Описание фильма не должно превышать 200 символов")
     private String description;
@@ -47,13 +47,13 @@ public class Film extends Model {
                 @Size(max = 200, message = "Описание фильма не должно превышать 200 символов") String description,
                 LocalDate releaseDate,
                 @Positive(message = "Длительность фильма должна быть больше нуля") int duration,
-                Long rate, Rating mpa, List<Genre> genres) {
+                Long rate, MPARating mpa, Set<Genre> genres) {
         super(id);
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.rate = rate;
+        if (rate != null) this.rate = rate;
         this.mpa = mpa;
         this.genres = genres;
     }
@@ -63,7 +63,7 @@ public class Film extends Model {
                 @Size(max = 200, message = "Описание фильма не должно превышать 200 символов") String description,
                 LocalDate releaseDate,
                 @Positive(message = "Длительность фильма должна быть больше нуля") int duration,
-                Long rate, Rating mpa) {
+                Long rate, MPARating mpa) {
         super(id);
         this.name = name;
         this.description = description;
@@ -73,7 +73,7 @@ public class Film extends Model {
         this.mpa = mpa;
     }
 
-    public Film(){
+    public Film() {
     }
 
 }

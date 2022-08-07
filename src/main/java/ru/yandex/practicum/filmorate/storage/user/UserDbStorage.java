@@ -62,36 +62,19 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Long generateId() {
-        return null;
-    }
-
-    @Override
-    public void addFriend(Long userId, Long friendId) {
-        String sqlQuery = "INSERT INTO friends(user_id, friend_id, status) VALUES (?, ?, ?)";
-        int result = jdbcTemplate.update(sqlQuery, userId, friendId, false);
-        if (result != 1)
-            throw new RuntimeException("Добавлено количество строк отличное от 1. Количество строк с изменениями - " + result);
-    }
-
-    @Override
-    public void deleteFriend(Long userId, Long friendId) {
-        String sqlQuery = "DELETE FROM friends WHERE user_id=? AND friend_id=?";
-        jdbcTemplate.update(sqlQuery, userId, friendId);
-    }
-
-    @Override
     public List<User> getListCommonFriend(Long userId, Long otherId) {
-        String sqlQuery = "SELECT * FROM users AS us WHERE us.id IN (" +
-                "SELECT friend_id FROM friends AS fr WHERE fr.user_id = ? AND fr.friend_id in " +
-                "(SELECT friend_id FROM friends AS fr2 WHERE fr2.user_id = ?)" +
-                ")";
+        String sqlQuery = "SELECT * FROM users AS us " +
+                "JOIN friends AS fr1 on us.ID = fr1.friend_id " +
+                "JOIN friends AS fr2 on us.ID = fr2.friend_id " +
+                "WHERE fr1.user_id = ? AND fr2.user_id = ?";
         return jdbcTemplate.query(sqlQuery, this::getUser, userId, otherId);
     }
 
     @Override
     public List<User> getListFriend(Long userId) {
-        String sqlQuery = "SELECT * FROM users AS us WHERE us.id IN (SELECT friend_id FROM friends AS fr WHERE fr.user_id=?)";
+        String sqlQuery = "SELECT * FROM users AS us " +
+                "JOIN friends AS fr on us.ID = fr.friend_id " +
+                "WHERE fr.user_id=?";
         return jdbcTemplate.query(sqlQuery, this::getUser, userId);
     }
 

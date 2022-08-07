@@ -2,14 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.BadRequestException;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
 
 import java.util.List;
 
 @Service
-public class MPAService {
+public class MPAService extends ValidateService {
 
     private final MPAStorage mpaStorage;
 
@@ -18,18 +17,13 @@ public class MPAService {
         this.mpaStorage = mpaStorage;
     }
 
-    public List<Rating> getAll() {
+    public List<MPARating> getAll() {
         return mpaStorage.getAll();
     }
 
-    public Rating getOne(Long id) {
-        baseValidate(id);
+    public MPARating getOne(Long id) {
+        validateId(id);
         return mpaStorage.getOne(id);
-    }
-
-    private void baseValidate(Long id) {
-        if (id == null || id < 0)
-            throw new BadRequestException("Id должен быть положительным числом", String.valueOf(id));
     }
 
 }

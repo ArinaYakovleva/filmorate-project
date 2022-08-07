@@ -3,13 +3,11 @@ DELETE FROM FILM_LIKES;
 DELETE FROM FRIENDS;
 DELETE FROM USERS;
 DELETE FROM FILMS;
-DELETE FROM RATING;
-DELETE FROM GENRES;
 
 ALTER TABLE USERS ALTER COLUMN ID RESTART WITH 1;
 ALTER TABLE FILMS ALTER COLUMN ID RESTART WITH 1;
 
-INSERT INTO RATING (id, name, description)
+MERGE INTO RATING (id, name, description)
 VALUES
     (1,'G','без ограничений'),
     (2,'PG','детям рекомендуется смотреть фильм с родителями'),
@@ -17,7 +15,7 @@ VALUES
     (4,'R','лицам до 17 лет просматривать фильм можно только в присутствии взрослого'),
     (5,'NC-17','лицам до 18 лет просмотр запрещён');
 
-INSERT INTO GENRES (id, name)
+MERGE INTO GENRES (id, name)
 VALUES
     (1,'Комедия'),
     (2,'Драма'),
