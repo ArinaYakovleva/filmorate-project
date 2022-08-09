@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FriendsDBStorage implements FriendsStorage{
+public class FriendsDBStorage implements FriendsStorage {
 
     private final JdbcTemplate jdbcTemplate;
 

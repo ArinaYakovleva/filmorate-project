@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 import java.util.List;
 
 @Component
-public class MPADbStorage implements MPAStorage{
+public class MPADbStorage implements MPAStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -24,7 +24,7 @@ public class MPADbStorage implements MPAStorage{
             Long id = rs.getLong("id");
             String name = rs.getString("name");
             String description = rs.getString("description");
-            return new MPARating(id, name,description);
+            return new MPARating(id, name, description);
         });
     }
 
