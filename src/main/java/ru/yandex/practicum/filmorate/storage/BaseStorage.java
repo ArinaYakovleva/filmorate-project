@@ -15,5 +15,4 @@ public interface BaseStorage<T extends Model> {
 
     T getOne(Long id);
 
-    Long generateId();
 }
