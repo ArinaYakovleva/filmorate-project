@@ -17,5 +17,8 @@ public class MyExceptionHandler {
     public ResponseEntity<?> badRequestException(BadRequestException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
-
+    @ExceptionHandler
+    public ResponseEntity<?> notFoundException(NotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
 }
