@@ -26,8 +26,8 @@ public class FilmService extends BaseService<Film, FilmStorage> {
             throw new ValidationException("Дата релиза должна быть после 28 декабря 1895 года", String.valueOf(film.getReleaseDate()));
     }
 
-    public List<Film> getPopularFilms(Integer count) {
-        return storage.getPopularFilms(count);
+    public List<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
+        return storage.getPopularFilms(count, genreId, year);
     }
 
     public List<Film> getDirectorFilms(Long directorId, String sortBy) {

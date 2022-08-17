@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -8,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.testUtils.FilmGenerator;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
@@ -34,17 +37,28 @@ class FilmStorageTest {
 
     @Test
     public void testAddFilm() {
-        Film filmIn = new Film(null, "test name", "test description", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
+        // Arrange
+        var filmIn = FilmGenerator.generateFilm();
+
+        // Act
         Film filmOut = filmStorage.add(filmIn);
+
+        // Assert
         assertThat(filmOut).hasFieldOrPropertyWithValue("id", 1L);
     }
 
     @Test
     public void testEditFilm() {
-        Film filmIn = new Film(null, "test name", "test description", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
+        // Arrange
+        var filmIn = FilmGenerator.generateFilm();
         filmStorage.add(filmIn);
+
         filmIn.setName("New Edit Film");
+
+        // Act
         Film filmOut = filmStorage.edit(filmIn);
+
+        // Assert
         assertThat(filmOut)
                 .hasFieldOrPropertyWithValue("id", 1L)
                 .hasFieldOrPropertyWithValue("name", "New Edit Film");
@@ -52,35 +66,47 @@ class FilmStorageTest {
 
     @Test
     public void testGetAll() {
-        Film filmIn = new Film(null, "test name 1", "test description 1", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
-        filmStorage.add(filmIn);
-        Film filmIn2 = new Film(null, "test name 2", "test description 2", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
-        filmStorage.add(filmIn2);
+        // Arrange
+        var films = FilmGenerator.generateFilm(2);
+        filmStorage.add(films.get(0));
+        filmStorage.add(films.get(1));
+
+        // Act
         List<Film> filmList = filmStorage.getAll();
+
+        // Assert
         assertThat(filmList.get(0))
                 .hasFieldOrPropertyWithValue("id", 1L)
-                .hasFieldOrPropertyWithValue("name", "test name 1");
+                .hasFieldOrPropertyWithValue("name", films.get(0).getName());
         assertThat(filmList.get(1))
                 .hasFieldOrPropertyWithValue("id", 2L)
-                .hasFieldOrPropertyWithValue("name", "test name 2");
-
+                .hasFieldOrPropertyWithValue("name", films.get(1).getName());
     }
 
     @Test
     public void testGetOne() {
-        Film filmIn = new Film(null, "test name", "test description", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
+        // Arrange
+        var filmIn = FilmGenerator.generateFilm();
         filmStorage.add(filmIn);
+
+        // Act
         Film filmOut = filmStorage.getOne(1L);
+
+        // Assert
         assertThat(filmOut).hasFieldOrPropertyWithValue("id", 1L);
     }
 
     @Test
-    public void testGetPopularFilms() {
-        Film filmIn = new Film(null, "test name 1", "test description 1", LocalDate.now(), 120, 2L, new MPARating(1L, "G", "без ограничений"));
-        filmStorage.add(filmIn);
-        Film filmIn2 = new Film(null, "test name 2", "test description 2", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
-        filmStorage.add(filmIn2);
-        List<Film> filmList = filmStorage.getPopularFilms(2);
+    public void testGetPopularFilmsWithCount() {
+        // Arrange
+        var films = FilmGenerator.generateFilm(2);
+        filmStorage.add(films.get(0));
+        filmStorage.add(films.get(1));
+
+        // Act
+        List<Film> filmList = filmStorage.getPopularFilms(2, null, null);
+
+        // Assert
         assertThat(filmList.get(0))
                 .hasFieldOrPropertyWithValue("id", 2L);
         assertThat(filmList.get(1))
@@ -88,7 +114,54 @@ class FilmStorageTest {
     }
 
     @Test
+    public void testGetPopularFilmsWithGenreId() {
+        // Arrange
+        var films = FilmGenerator.generateFilm(2);
+
+        films.get(0).setGenres(Set.of(
+                new Genre(1L, "Комедия"),
+                new Genre(2L, "Драма")));
+        films.get(1).setGenres(Set.of(new Genre(3L, "Мультфильм")));
+
+        filmStorage.add(films.get(0));
+        filmStorage.add(films.get(1));
+
+        films.get(0).setId(1L);
+
+        // Act
+        List<Film> actualFilms = filmStorage.getPopularFilms(2, 1L, null);
+
+        // Assert
+        Assertions.assertEquals(1, actualFilms.size());
+
+        Assertions.assertEquals(films.get(0), actualFilms.get(0));
+    }
+
+    @Test
+    public void testGetPopularFilmsYear() {
+        // Arrange
+        var films = FilmGenerator.generateFilm(2);
+        int expectedYear = 2000;
+
+        films.get(0).setReleaseDate(LocalDate.of(expectedYear, 1, 1));
+        films.get(1).setReleaseDate(LocalDate.of(2022, 1, 1));
+
+        filmStorage.add(films.get(0));
+        filmStorage.add(films.get(1));
+
+        films.get(0).setId(1L);
+
+        // Act
+        List<Film> actualFilms = filmStorage.getPopularFilms(2, null, expectedYear);
+
+        // Assert
+        Assertions.assertTrue(
+                actualFilms.stream()
+                        .allMatch(f -> f.getReleaseDate().getYear() == expectedYear));
+    }
+    @Test
     void getOrderedFilmsByYear() {
+        // Arrange
         Director director = directorStorage.getOne(1L);
 
         // Поздний фильм
@@ -105,9 +178,10 @@ class FilmStorageTest {
         Film filmIn3 = new Film(null, "test name 2", "test description 2", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
         filmStorage.add(filmIn3);
 
-        // Список фильмов режиссера, отсортированный по году выхода
+        // Act (Список фильмов режиссера, отсортированный по году выхода)
         List<Film> filmsOrderedByYear = filmStorage.getDirectorFilms(1L, "year");
 
+        // Assert
         assertThat(filmsOrderedByYear.size()).isEqualTo(2);
         assertThat(filmsOrderedByYear.get(0).getId()).isEqualTo(2);
         assertThat(filmsOrderedByYear.get(1).getId()).isEqualTo(1);
@@ -115,6 +189,7 @@ class FilmStorageTest {
 
     @Test
     void getOrderedFilmsByLikesCount() {
+        // Arrange
         Director director = directorStorage.getOne(1L);
         User userOne = userStorage.add(new User(1L, "emailOne@mail.com", "loginOne", "NameOne", LocalDate.now().minusDays(1)));
         User userTwo = userStorage.add(new User(2L, "emailTwo@mail.com", "loginOne", "NameTwo", LocalDate.now().minusDays(1)));
@@ -138,9 +213,10 @@ class FilmStorageTest {
         likeStorage.addLike(filmIn3.getId(), userOne.getId());
         likeStorage.addLike(filmIn3.getId(), userTwo.getId());
 
-        // Список фильмов режиссера, отсортированный по количеству лайков
+        // Act (Список фильмов режиссера, отсортированный по количеству лайков)
         List<Film> filmsOrderedByLikesCount = filmStorage.getDirectorFilms(1L, "year");
 
+        // Assert
         assertThat(filmsOrderedByLikesCount.size()).isEqualTo(2);
         assertThat(filmsOrderedByLikesCount.get(0).getId()).isEqualTo(2);
         assertThat(filmsOrderedByLikesCount.get(1).getId()).isEqualTo(1);

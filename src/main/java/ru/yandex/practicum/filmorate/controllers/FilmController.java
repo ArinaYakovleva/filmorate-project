@@ -18,8 +18,11 @@ public class FilmController extends BaseController<Film, FilmService> {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        return service.getPopularFilms(count);
+    public List<Film> getPopularFilms(
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+        return service.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")

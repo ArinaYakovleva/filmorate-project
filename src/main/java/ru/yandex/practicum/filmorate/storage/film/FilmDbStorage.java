@@ -162,8 +162,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getPopularFilms(Integer count) {
+    public List<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
         return getAll().stream()
+                .filter(genreId != null ? f -> f.getGenres().stream()
+                        .anyMatch(g -> g.getId().equals(genreId)) : film -> true)
+                .filter(year != null ? f -> f.getReleaseDate().getYear() == year : film -> true)
                 .sorted(Comparator.comparing(Film::getRate, Comparator.reverseOrder()))
                 .limit(count)
                 .collect(Collectors.toList());
