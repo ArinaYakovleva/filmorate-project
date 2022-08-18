@@ -13,9 +13,4 @@ public class DirectorController extends BaseController<Director, DirectorService
     public DirectorController(DirectorService directorService) {
         super(directorService);
     }
-
-    @DeleteMapping("/{id}")
-    public void remove(@PathVariable Long id) {
-        service.remove(id);
-    }
 }

@@ -48,6 +48,7 @@ public class DirectorService extends BaseService<Director, DirectorStorage> {
 
     }
 
+    @Override
     public void remove(Long id) {
         try {
             storage.remove(id);
