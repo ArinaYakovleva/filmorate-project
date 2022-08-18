@@ -62,6 +62,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public void remove(Long id) {
+        String sqlQuery = "DELETE FROM users WHERE id=?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+    @Override
     public List<User> getListCommonFriend(Long userId, Long otherId) {
         String sqlQuery = "SELECT * FROM users AS us " +
                 "JOIN friends AS fr1 on us.ID = fr1.friend_id " +
@@ -72,6 +78,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getListFriend(Long userId) {
+        jdbcTemplate.queryForObject("SELECT * FROM users WHERE id=?", this::getUser, userId);
         String sqlQuery = "SELECT * FROM users AS us " +
                 "JOIN friends AS fr on us.ID = fr.friend_id " +
                 "WHERE fr.user_id=?";

@@ -38,6 +38,11 @@ public abstract class BaseService<T extends Model, R extends BaseStorage<T>> ext
         return storage.getOne(id);
     }
 
+    @Override
+    public void remove(Long id) throws ValidationException {
+        validateId(id);
+        storage.remove(id);
+    }
     abstract protected void validate(T data);
 
 }

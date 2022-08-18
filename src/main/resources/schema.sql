@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS film_genre (
     film_id bigint ,
     genre_id bigint ,
     CONSTRAINT pk_film_genre PRIMARY KEY (film_id,genre_id),
-    CONSTRAINT fk_film_genre_film_id FOREIGN KEY(film_id) REFERENCES films (id),
-    CONSTRAINT fk_film_genre_genre_id FOREIGN KEY(genre_id) REFERENCES genres (id)
+    CONSTRAINT fk_film_genre_film_id FOREIGN KEY(film_id) REFERENCES films (id) on update cascade on delete cascade,
+    CONSTRAINT fk_film_genre_genre_id FOREIGN KEY(genre_id) REFERENCES genres (id) on update cascade on delete cascade
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS film_likes (
     user_id bigint ,
     film_id bigint ,
     CONSTRAINT pk_film_likes PRIMARY KEY (user_id,film_id),
-    CONSTRAINT fk_film_likes_user_id FOREIGN KEY(user_id) REFERENCES users (id),
-    CONSTRAINT fk_film_likes_film_id FOREIGN KEY(film_id) REFERENCES films (id)
+    CONSTRAINT fk_film_likes_user_id FOREIGN KEY(user_id) REFERENCES users (id) on update cascade on delete cascade,
+    CONSTRAINT fk_film_likes_film_id FOREIGN KEY(film_id) REFERENCES films (id) on update cascade on delete cascade
 );
 
 create table if not exists FILM_DIRECTOR
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS friends (
     friend_id bigint  ,
     status boolean  NOT NULL ,
     CONSTRAINT pk_friends PRIMARY KEY (user_id,friend_id),
-    CONSTRAINT fk_friends_user_id FOREIGN KEY(user_id) REFERENCES users (id),
-    CONSTRAINT fk_friends_friend_id FOREIGN KEY(friend_id) REFERENCES users (id)
+    CONSTRAINT fk_friends_user_id FOREIGN KEY(user_id) REFERENCES users (id) on update cascade on delete cascade,
+    CONSTRAINT fk_friends_friend_id FOREIGN KEY(friend_id) REFERENCES users (id) on update cascade on delete cascade
 );
 
