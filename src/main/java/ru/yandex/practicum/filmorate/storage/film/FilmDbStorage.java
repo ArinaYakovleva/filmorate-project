@@ -110,30 +110,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN film_likes fl on f.id = fl.film_id " +
                 "GROUP BY f.id";
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm);
-        Map<Long, Film> filmMap = filmList.stream().collect(Collectors.toMap(Film::getId, f -> f));
-        List<Long> listId = filmList.stream().map(Film::getId).collect(Collectors.toList());
-        SqlParameterSource parameters = new MapSqlParameterSource("ids", listId);
-        namedParameterJdbcTemplate.query("SELECT fg.film_id, ge.id, ge.name " +
-                "FROM film_genre AS fg " +
-                "JOIN genres AS ge ON fg.genre_id = ge.id " +
-                "WHERE fg.film_id IN (:ids)", parameters, (rs) -> {
-            Long filmId = rs.getLong("film_id");
-            Long genreId = rs.getLong("id");
-            String name = rs.getString("name");
-            filmMap.get(filmId).getGenres().add(new Genre(genreId, name));
-        });
-
-        namedParameterJdbcTemplate.query("SELECT fd.film_id, d.id, d.name " +
-                "FROM film_director AS fd " +
-                "JOIN director AS d ON fd.director_id = d.id " +
-                "WHERE fd.film_id IN (:ids)", parameters, (rs) -> {
-            Long filmId = rs.getLong("film_id");
-            Long directorId = rs.getLong("id");
-            String name = rs.getString("name");
-            filmMap.get(filmId).getDirectors().add(new Director(directorId, name));
-        });
-
-        return new ArrayList<>(filmMap.values());
+        return formFilmsFromQuery(filmList);
     }
 
     @Override
@@ -257,6 +234,47 @@ public class FilmDbStorage implements FilmStorage {
         });
 
         return filmList;
+    }
+
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+                "FROM films f " +
+                "JOIN rating r on r.id = f.rating_id " +
+                "JOIN film_likes fl on f.id = fl.film_id " +
+                "JOIN film_likes fl2 on f.id=fl2.film_id " +
+                "WHERE fl.user_id=? AND fl2.user_id=? " +
+                "GROUP BY f.id " +
+                "ORDER BY fl_rate DESC;";
+        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm, userId, friendId);
+        return formFilmsFromQuery(filmList);
+    }
+
+    private List<Film> formFilmsFromQuery(List<Film> films) {
+        Map<Long, Film> filmMap = films.stream().collect(Collectors.toMap(Film::getId, f -> f));
+        List<Long> listId = films.stream().map(Film::getId).collect(Collectors.toList());
+        SqlParameterSource parameters = new MapSqlParameterSource("ids", listId);
+        namedParameterJdbcTemplate.query("SELECT fg.film_id, ge.id, ge.name " +
+                "FROM film_genre AS fg " +
+                "JOIN genres AS ge ON fg.genre_id = ge.id " +
+                "WHERE fg.film_id IN (:ids)", parameters, (rs) -> {
+            Long filmId = rs.getLong("film_id");
+            Long genreId = rs.getLong("id");
+            String name = rs.getString("name");
+            filmMap.get(filmId).getGenres().add(new Genre(genreId, name));
+        });
+
+        namedParameterJdbcTemplate.query("SELECT fd.film_id, d.id, d.name " +
+                "FROM film_director AS fd " +
+                "JOIN director AS d ON fd.director_id = d.id " +
+                "WHERE fd.film_id IN (:ids)", parameters, (rs) -> {
+            Long filmId = rs.getLong("film_id");
+            Long directorId = rs.getLong("id");
+            String name = rs.getString("name");
+            filmMap.get(filmId).getDirectors().add(new Director(directorId, name));
+        });
+
+        return new ArrayList<>(filmMap.values());
     }
 
     private Film getFilm(ResultSet rs, int rowNum) throws SQLException {
