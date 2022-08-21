@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class DirectorDbStorageTest {
-    private final DirectorStorage directorStorage;
+    private final IDirectorStorage directorStorage;
 
     @Test
     void findDirectorById() {

@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 import java.util.List;
 
 @Component
-public class MPADbStorage implements MPAStorage {
+public class MPADbStorage implements IMPAStorage {
 
     private final JdbcTemplate jdbcTemplate;
 

@@ -16,7 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class FriendsStorageTest {
 
-    private final FriendsStorage friendsStorage;
+    private final IFriendsStorage friendsStorage;
 
     @Test
     public void testAddFriend() {

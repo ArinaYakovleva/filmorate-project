@@ -13,9 +13,9 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.testUtils.FilmGenerator;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.director.IDirectorStorage;
+import ru.yandex.practicum.filmorate.storage.like.ILikeStorage;
+import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,11 +29,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class FilmStorageTest {
 
-    private final FilmStorage filmStorage;
-    private final DirectorStorage directorStorage;
+    private final IFilmStorage filmStorage;
+    private final IDirectorStorage directorStorage;
 
-    private final LikeStorage likeStorage;
-    private final UserStorage userStorage;
+    private final ILikeStorage likeStorage;
+    private final IUserStorage userStorage;
 
     @Test
     public void testAddFilm() {
@@ -106,9 +106,9 @@ class FilmStorageTest {
         userStorage.add(userIn1);
         User userIn2 = new User(null, "test2@google.com", "test Login 2", "test Name 2", LocalDate.now().minusDays(10));
         userStorage.add(userIn2);
-        likeStorage.addLike(1L,1L);
-        likeStorage.addLike(2L,1L);
-        likeStorage.addLike(2L,2L);
+        likeStorage.addLike(1L, 1L);
+        likeStorage.addLike(2L, 1L);
+        likeStorage.addLike(2L, 2L);
         // Act
         List<Film> filmList = filmStorage.getPopularFilms(2, null, null);
 
@@ -165,23 +165,48 @@ class FilmStorageTest {
                 actualFilms.stream()
                         .allMatch(f -> f.getReleaseDate().getYear() == expectedYear));
     }
+
     @Test
     void getOrderedFilmsByYear() {
         // Arrange
         Director director = directorStorage.getOne(1L);
 
         // Поздний фильм
-        Film filmIn = new Film(null, "test name 1", "test description 1", LocalDate.now(), 120, 2L, new MPARating(1L, "G", "без ограничений"));
-        filmIn.setDirectors(Set.of(director));
+        Film filmIn = new Film.FilmBuilder(null)
+                .withName("test name 1")
+                .withDescription("test description 1")
+                .withReleaseDate(LocalDate.now())
+                .withDuration(120)
+                .withRate(2L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .withDirectors(Set.of(director))
+                .build();
+
         filmStorage.add(filmIn);
 
         // Ранний фильм
-        Film filmIn2 = new Film(null, "test name 2", "test description 2", LocalDate.now().minusDays(1), 120, 4L, new MPARating(1L, "G", "без ограничений"));
-        filmIn2.setDirectors(Set.of(director));
+        Film filmIn2 = new Film.FilmBuilder(null)
+                .withName("test name 2")
+                .withDescription("test description 2")
+                .withReleaseDate(LocalDate.now().minusDays(1))
+                .withDuration(120)
+                .withRate(4L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .withDirectors(Set.of(director))
+                .build();
+
         filmStorage.add(filmIn2);
 
         // Фильм другого режиссера
-        Film filmIn3 = new Film(null, "test name 2", "test description 2", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
+        Film filmIn3 = new Film.FilmBuilder(null)
+                .withName("test name 2")
+                .withDescription("test description 2")
+                .withReleaseDate(LocalDate.now())
+                .withDuration(120)
+                .withRate(4L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .build();
+
         filmStorage.add(filmIn3);
 
         // Act (Список фильмов режиссера, отсортированный по году выхода)
@@ -201,20 +226,44 @@ class FilmStorageTest {
         User userTwo = userStorage.add(new User(2L, "emailTwo@mail.com", "loginOne", "NameTwo", LocalDate.now().minusDays(1)));
 
         // Непопулярный фильм
-        Film filmIn = new Film(null, "test name 1", "test description 1", LocalDate.now(), 120, 2L, new MPARating(1L, "G", "без ограничений"));
-        filmIn.setDirectors(Set.of(director));
+        Film filmIn = new Film.FilmBuilder(null)
+                .withName("test name 1")
+                .withDescription("test description 1")
+                .withReleaseDate(LocalDate.now())
+                .withDuration(120)
+                .withRate(2L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .withDirectors(Set.of(director))
+                .build();
+
         filmStorage.add(filmIn);
         likeStorage.addLike(filmIn.getId(), userOne.getId());
 
         // Популярный фильм
-        Film filmIn2 = new Film(null, "test name 2", "test description 2", LocalDate.now().minusDays(1), 120, 4L, new MPARating(1L, "G", "без ограничений"));
-        filmIn2.setDirectors(Set.of(director));
+        Film filmIn2 = new Film.FilmBuilder(null)
+                .withName("test name 2")
+                .withDescription("test description 2")
+                .withReleaseDate(LocalDate.now().minusDays(1))
+                .withDuration(120)
+                .withRate(4L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .withDirectors(Set.of(director))
+                .build();
+
         filmStorage.add(filmIn2);
         likeStorage.addLike(filmIn2.getId(), userOne.getId());
         likeStorage.addLike(filmIn2.getId(), userTwo.getId());
 
         // Фильм другого режиссера
-        Film filmIn3 = new Film(null, "test name 2", "test description 2", LocalDate.now(), 120, 4L, new MPARating(1L, "G", "без ограничений"));
+        Film filmIn3 = new Film.FilmBuilder(null)
+                .withName("test name 2")
+                .withDescription("test description 2")
+                .withReleaseDate(LocalDate.now())
+                .withDuration(120)
+                .withRate(4L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .build();
+
         filmStorage.add(filmIn3);
         likeStorage.addLike(filmIn3.getId(), userOne.getId());
         likeStorage.addLike(filmIn3.getId(), userTwo.getId());

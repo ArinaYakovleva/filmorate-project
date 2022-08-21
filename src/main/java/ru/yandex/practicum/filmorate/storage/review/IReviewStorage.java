@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.model.Review;
 
 import java.util.List;
 
-public interface ReviewStorage {
+public interface IReviewStorage {
     List<Review> getAll(Long filmId, Integer count);
 
     Review getOne(Long id);

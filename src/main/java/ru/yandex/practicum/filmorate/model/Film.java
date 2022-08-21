@@ -27,54 +27,71 @@ public class Film extends Model {
 
     @Size(max = 200, message = "Описание фильма не должно превышать 200 символов")
     private String description;
+
     private LocalDate releaseDate;
+
     @Positive(message = "Длительность фильма должна быть больше нуля")
     private int duration;
-
-    public Film(Long id,
-                @NotBlank(message = "Наименование фильма не может быть пустым") String name,
-                @Size(max = 200, message = "Описание фильма не должно превышать 200 символов") String description,
-                LocalDate releaseDate,
-                @Positive(message = "Длительность фильма должна быть больше нуля") int duration) {
-        super(id);
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-
-    public Film(Long id,
-                @NotBlank(message = "Наименование фильма не может быть пустым") String name,
-                @Size(max = 200, message = "Описание фильма не должно превышать 200 символов") String description,
-                LocalDate releaseDate,
-                @Positive(message = "Длительность фильма должна быть больше нуля") int duration,
-                Long rate, MPARating mpa, Set<Genre> genres) {
-        super(id);
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        if (rate != null) this.rate = rate;
-        this.mpa = mpa;
-        this.genres = genres;
-    }
-
-    public Film(Long id,
-                @NotBlank(message = "Наименование фильма не может быть пустым") String name,
-                @Size(max = 200, message = "Описание фильма не должно превышать 200 символов") String description,
-                LocalDate releaseDate,
-                @Positive(message = "Длительность фильма должна быть больше нуля") int duration,
-                Long rate, MPARating mpa) {
-        super(id);
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.rate = rate;
-        this.mpa = mpa;
-    }
 
     public Film() {
     }
 
+    public Film(Long id) {
+        super(id);
+    }
+
+    @Data
+    @EqualsAndHashCode(callSuper = true)
+    public static class FilmBuilder extends Model {
+
+        private Film newFilm;
+
+        public FilmBuilder(Long id) {
+            newFilm = new Film(id);
+        }
+
+        public FilmBuilder withName(String name) {
+            newFilm.name = name;
+            return this;
+        }
+
+        public FilmBuilder withRate(Long rate) {
+            newFilm.rate = rate;
+            return this;
+        }
+
+        public FilmBuilder withMpa(MPARating mpa) {
+            newFilm.mpa = mpa;
+            return this;
+        }
+
+        public FilmBuilder withDirectors(Set<Director> directors) {
+            newFilm.directors = directors;
+            return this;
+        }
+
+        public FilmBuilder withGenres(Set<Genre> genres) {
+            newFilm.genres = genres;
+            return this;
+        }
+
+        public FilmBuilder withDescription(String description) {
+            newFilm.description = description;
+            return this;
+        }
+
+        public FilmBuilder withReleaseDate(LocalDate releaseDate) {
+            newFilm.releaseDate = releaseDate;
+            return this;
+        }
+
+        public FilmBuilder withDuration(int duration) {
+            newFilm.duration = duration;
+            return this;
+        }
+
+        public Film build() {
+            return newFilm;
+        }
+    }
 }

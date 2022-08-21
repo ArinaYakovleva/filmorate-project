@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,8 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component("userStorageDB")
-@Slf4j
-public class UserDbStorage implements UserStorage {
+public class UserDbStorage implements IUserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -93,5 +91,4 @@ public class UserDbStorage implements UserStorage {
         LocalDate birthday = rs.getDate("birthday").toLocalDate();
         return new User(id, email, login, name, birthday);
     }
-
 }

@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import ru.yandex.practicum.filmorate.model.Model;
-import ru.yandex.practicum.filmorate.service.CommonService;
+import ru.yandex.practicum.filmorate.service.ICommonService;
 
 import java.util.List;
 
-public abstract class BaseController<T extends Model, S extends CommonService<T>> implements CommonController<T> {
+public abstract class BaseController<T extends Model, S extends ICommonService<T>> implements ICommonController<T> {
 
     protected final S service;
 

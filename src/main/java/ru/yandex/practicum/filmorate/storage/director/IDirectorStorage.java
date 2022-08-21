@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.director;
 
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.IBaseStorage;
 
 import java.util.List;
 
-public interface DirectorStorage extends BaseStorage<Director> {
+public interface IDirectorStorage extends IBaseStorage<Director> {
 
     /**
      * @return Список всех режиссеров

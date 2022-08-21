@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.model.Model;
 import javax.validation.Valid;
 import java.util.List;
 
-public interface CommonController<T extends Model> {
+public interface ICommonController<T extends Model> {
 
     @PostMapping
     T add(@Valid @RequestBody T data);

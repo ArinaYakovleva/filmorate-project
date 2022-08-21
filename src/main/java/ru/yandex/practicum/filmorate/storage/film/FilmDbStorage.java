@@ -20,13 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("filmStorageDB")
 @Slf4j
-public class FilmDbStorage implements FilmStorage {
+public class FilmDbStorage implements IFilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -278,17 +277,18 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film getFilm(ResultSet rs, int rowNum) throws SQLException {
-        Long id = rs.getLong("id");
-        String name = rs.getString("name");
-        Long rate = rs.getLong("fl_rate");
-        String description = rs.getString("description");
-        LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
-        int duration = rs.getInt("duration");
+
         Long mtaId = rs.getLong("mta_id");
         String mtaName = rs.getString("mta_name");
         String mtaDescription = rs.getString("mta_description");
-        MPARating mpaRating = new MPARating(mtaId, mtaName, mtaDescription);
-        return new Film(id, name, description, releaseDate, duration, rate, mpaRating);
-    }
 
+        return new Film.FilmBuilder(rs.getLong("id"))
+                .withName(rs.getString("name"))
+                .withDescription(rs.getString("description"))
+                .withReleaseDate(rs.getDate("release_date").toLocalDate())
+                .withDuration(rs.getInt("duration"))
+                .withRate(rs.getLong("fl_rate"))
+                .withMpa(new MPARating(mtaId, mtaName, mtaDescription))
+                .build();
+    }
 }

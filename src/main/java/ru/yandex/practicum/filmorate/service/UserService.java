@@ -4,15 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
 
 import java.util.List;
 
 @Service
-public class UserService extends BaseService<User, UserStorage> {
+public class UserService extends BaseService<User, IUserStorage> {
 
     @Autowired
-    public UserService(@Qualifier("userStorageDB") UserStorage storage) {
+    public UserService(@Qualifier("userStorageDB") IUserStorage storage) {
         super(storage);
     }
 
@@ -30,5 +30,4 @@ public class UserService extends BaseService<User, UserStorage> {
         validateId(userId);
         return storage.getListFriend(userId);
     }
-
 }

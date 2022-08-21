@@ -4,16 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.director.IDirectorStorage;
 
 import java.util.List;
 
 @Slf4j
 @Service
-public class DirectorService extends BaseService<Director, DirectorStorage> {
+public class DirectorService extends BaseService<Director, IDirectorStorage> {
 
 
-    protected DirectorService(DirectorStorage storage) {
+    protected DirectorService(IDirectorStorage storage) {
         super(storage);
     }
 

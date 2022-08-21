@@ -9,13 +9,14 @@ import java.util.ArrayList;
 public class FilmGenerator {
 
     public static Film generateFilm() {
-        return new Film(null,
-                "test name",
-                "test description",
-                LocalDate.now(),
-                120,
-                4L,
-                new MPARating(1L, "G", "без ограничений"));
+        return new Film.FilmBuilder(null)
+                .withName("test name")
+                .withDescription("test description")
+                .withReleaseDate(LocalDate.now())
+                .withDuration(120)
+                .withRate(4L)
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
+                .build();
     }
 
     public static ArrayList<Film> generateFilm(int count) {
@@ -24,13 +25,14 @@ public class FilmGenerator {
         for (int i = 0; i < count; i++) {
 
             var j = i + 1;
-            var film = new Film(null,
-                    "test name " + j,
-                    "test description " + j,
-                    LocalDate.now(),
-                    120,
-                    4L + j,
-                    new MPARating(1L, "G", "без ограничений"));
+            var film = new Film.FilmBuilder(null)
+                    .withName("test name " + j)
+                    .withDescription("test description " + j)
+                    .withReleaseDate(LocalDate.now())
+                    .withDuration(120 + j)
+                    .withRate(4L + j)
+                    .withMpa(new MPARating(1L, "G", "без ограничений"))
+                    .build();
             films.add(film);
         }
 
