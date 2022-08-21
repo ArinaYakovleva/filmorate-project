@@ -78,3 +78,21 @@ CREATE TABLE IF NOT EXISTS friends (
     CONSTRAINT fk_friends_friend_id FOREIGN KEY(friend_id) REFERENCES users (id) on update cascade on delete cascade
 );
 
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id bigint PRIMARY KEY AUTO_INCREMENT,
+    content varchar,
+    is_positive boolean,
+    user_id bigint,
+    film_id bigint,
+    CONSTRAINT fk_users_user_id FOREIGN KEY (user_id) REFERENCES users (id),
+    CONSTRAINT fk_films_film_id FOREIGN KEY (film_id) REFERENCES films (id)
+);
+
+CREATE TABLE IF NOT EXISTS rating_reviews (
+    user_id bigint,
+    review_id bigint,
+    is_positive boolean,
+    CONSTRAINT pk_ratings_of_reviews PRIMARY KEY (review_id, user_id),
+    CONSTRAINT fk_ratings_of_reviews FOREIGN KEY (user_id) REFERENCES users(id) on delete cascade,
+    CONSTRAINT fk_reviews_review_id FOREIGN KEY (review_id) REFERENCES reviews(review_id) on delete cascade
+)
