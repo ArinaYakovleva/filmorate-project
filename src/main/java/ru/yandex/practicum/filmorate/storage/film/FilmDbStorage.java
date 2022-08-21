@@ -191,9 +191,28 @@ public class FilmDbStorage implements IFilmStorage {
                         "where fd.director_id = ?\n" +
                         "group by f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.rating_id, r.name, r.description\n" +
                         "order by count(fl.film_id)";
-
+            case "search":
+                return "select f.id              as id,\n" +
+                        "       f.name            as name,\n" +
+                        "       f.rate            as rate,\n" +
+                        "       f.description     as description,\n" +
+                        "       f.release_date    as release_date,\n" +
+                        "       f.duration        as duration,\n" +
+                        "       f.rating_id       as mta_id,\n" +
+                        "       r.name            as mta_name,\n" +
+                        "       r.description     as mta_description,\n" +
+                        "       count(fl.user_id) as fl_rate\n" +
+                        "from films as f\n" +
+                        "         left join film_likes fl on f.id = fl.film_id\n" +
+                        "         join rating r on r.id = f.rating_id\n" +
+                        "         left join film_director fd on f.id = fd.film_id\n" +
+                        "         left join director d on d.id = fd.director_id\n" +
+                        "where lower(f.name) like '%' || :titleQuery || '%'\n" +
+                        "   or lower(d.name) like '%' || :directorQuery || '%'\n" +
+                        "group by f.id, r.id\n" +
+                        "order by count(fl.film_id) desc";
             default:
-                String message = "Некорректный параметр сортировки";
+                String message = "Передан некорректный параметр";
                 log.warn(message);
                 throw new ValidationException(message, sortBy);
         }
@@ -204,8 +223,22 @@ public class FilmDbStorage implements IFilmStorage {
         String sqlQuery = getSqlQueryForSort(sortBy);
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm, id);
         if (filmList.isEmpty()) {
-            throw new NotFoundException(String.format("Для режиссера с id = %s не найдено фильмов", id));
+            throw new NotFoundException("Фильмы не найдены");
         }
+        return getFilms(filmList);
+    }
+
+    @Override
+    public List<Film> getFilmsBySearch(String directorQuery, String titleQuery) {
+        MapSqlParameterSource paramSource = new MapSqlParameterSource();
+        paramSource.addValue("directorQuery", directorQuery);
+        paramSource.addValue("titleQuery", titleQuery);
+        String sqlQuery = getSqlQueryForSort("search");
+        List<Film> films = getFilms(namedParameterJdbcTemplate.query(sqlQuery, paramSource, this::getFilm));
+        return films;
+    }
+
+    private List<Film> getFilms(List<Film> filmList) {
         List<Long> listId = filmList.stream().map(Film::getId).collect(Collectors.toList());
         SqlParameterSource parameters = new MapSqlParameterSource("ids", listId);
         namedParameterJdbcTemplate.query("SELECT fg.film_id, ge.id, ge.name " +
