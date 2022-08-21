@@ -16,7 +16,7 @@ import org.springframework.test.annotation.DirtiesContext;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class LikeStorageTest {
 
-    private final LikeStorage likeStorage;
+    private final ILikeStorage likeStorage;
 
     @Test
     public void testLikeAddThrows() {

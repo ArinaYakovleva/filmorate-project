@@ -11,7 +11,7 @@ import java.sql.Statement;
 import java.util.List;
 
 @Component
-public class DirectorDbStorage implements DirectorStorage {
+public class DirectorDbStorage implements IDirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public DirectorDbStorage(JdbcTemplate jdbcTemplate) {

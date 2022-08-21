@@ -14,8 +14,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -26,9 +26,9 @@ import java.util.List;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class ReviewDbStorageTest {
-    private final ReviewStorage reviewStorage;
-    private final UserStorage userStorage;
-    private final FilmStorage filmStorage;
+    private final IReviewStorage reviewStorage;
+    private final IUserStorage userStorage;
+    private final IFilmStorage filmStorage;
     private static Review goodReview;
 
     @BeforeEach
@@ -40,23 +40,26 @@ class ReviewDbStorageTest {
                 LocalDate.of(2000, 1, 1));
         userStorage.add(user);
 
-        Film film = new Film(1L,
-                "test film",
-                "description",
-                LocalDate.of(2000, 1, 1),
-                120,
-                1L,
-                new MPARating(1L,"G", "без ограничений"),
-                new HashSet<>());
+        Film film = new Film.FilmBuilder(null)
+                .withName("test film")
+                .withDescription("description")
+                .withReleaseDate(LocalDate.of(2000, 1, 1))
+                .withDuration(120)
+                .withRate(1L)
+                .withMpa(new MPARating(1L,"G", "без ограничений"))
+                .withDirectors(new HashSet<>())
+                .build();
 
-        Film film1 = new Film(1L,
-                "test bad film",
-                "description",
-                LocalDate.of(2000, 1, 1),
-                120,
-                1L,
-                new MPARating(1L,"G", "без ограничений"),
-                new HashSet<>());
+        Film film1 = new Film.FilmBuilder(null)
+                .withName("test bad film")
+                .withDescription("description")
+                .withReleaseDate(LocalDate.of(2000, 1, 1))
+                .withDuration(120)
+                .withRate(1L)
+                .withMpa(new MPARating(1L,"G", "без ограничений"))
+                .withDirectors(new HashSet<>())
+                .build();
+
         userStorage.add(user);
         filmStorage.add(film);
         filmStorage.add(film1);

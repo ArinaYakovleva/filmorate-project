@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Model;
-import ru.yandex.practicum.filmorate.storage.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.IBaseStorage;
 
 import java.util.List;
 
-public abstract class BaseService<T extends Model, R extends BaseStorage<T>> extends ValidateService implements CommonService<T> {
+public abstract class BaseService<T extends Model, R extends IBaseStorage<T>> extends ValidateService implements ICommonService<T> {
 
     protected final R storage;
 

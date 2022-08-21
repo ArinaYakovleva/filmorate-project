@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.List;
 
 @Component
-public class GenreDbStorage implements GenreStorage {
+public class GenreDbStorage implements IGenreStorage {
 
     private final JdbcTemplate jdbcTemplate;
 

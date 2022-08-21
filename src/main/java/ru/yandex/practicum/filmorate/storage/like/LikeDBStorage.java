@@ -5,7 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class LikeDBStorage implements LikeStorage {
+public class LikeDBStorage implements ILikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
 

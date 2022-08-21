@@ -7,17 +7,17 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.review.IReviewStorage;
 
 import java.util.List;
 
 @Service
 @Slf4j
 public class ReviewService extends ValidateService implements IReviewService {
-    private final ReviewStorage storage;
+    private final IReviewStorage storage;
 
     @Autowired
-    public ReviewService(ReviewStorage storage) {
+    public ReviewService(IReviewStorage storage) {
         this.storage = storage;
     }
 

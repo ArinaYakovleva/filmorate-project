@@ -25,5 +25,4 @@ public class UserController extends BaseController<User, UserService> {
     public List<User> getListFriend(@PathVariable("id") Long userId) {
         return service.getListFriend(userId);
     }
-
 }

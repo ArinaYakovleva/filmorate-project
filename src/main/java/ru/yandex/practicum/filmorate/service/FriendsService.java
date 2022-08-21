@@ -2,15 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.friends.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.friends.IFriendsStorage;
 
 @Service
 public class FriendsService extends ValidateService {
 
-    private final FriendsStorage friendsStorage;
+    private final IFriendsStorage friendsStorage;
 
     @Autowired
-    public FriendsService(FriendsStorage friendsStorage) {
+    public FriendsService(IFriendsStorage friendsStorage) {
         this.friendsStorage = friendsStorage;
     }
 

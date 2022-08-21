@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.friends;
 
 
-public interface FriendsStorage {
+public interface IFriendsStorage {
 
     void addFriend(Long userId, Long friendId);
 

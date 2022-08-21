@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.model.Model;
 import javax.validation.Valid;
 import java.util.List;
 
-public interface BaseStorage<T extends Model> {
+public interface IBaseStorage<T extends Model> {
 
     T add(@Valid T data);
 
