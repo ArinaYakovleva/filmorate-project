@@ -104,9 +104,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description " +
-                "FROM films AS f " +
-                "JOIN rating r on r.id = f.rating_id";
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+                "FROM films f " +
+                "JOIN rating r on r.id = f.rating_id " +
+                "LEFT JOIN film_likes fl on f.id = fl.film_id " +
+                "GROUP BY f.id";
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm);
         Map<Long, Film> filmMap = filmList.stream().collect(Collectors.toMap(Film::getId, f -> f));
         List<Long> listId = filmList.stream().map(Film::getId).collect(Collectors.toList());
@@ -136,7 +138,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film getOne(Long id) {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description " + "FROM films AS f " + "JOIN rating r on r.id = f.rating_id WHERE f.id=?";
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+                "FROM films AS f " +
+                "JOIN rating r on r.id = f.rating_id " +
+                "LEFT JOIN film_likes fl on f.id = fl.film_id " +
+                "WHERE f.id=? " +
+                "GROUP BY f.id";
         Film film = jdbcTemplate.queryForObject(sqlQuery, this::getFilm, id);
         String genreQuery = "SELECT ge.id, ge.name FROM film_genre AS fg INNER JOIN genres AS ge ON fg.genre_id = ge.id WHERE fg.film_id=?";
         Set<Genre> genreSet = new HashSet<>(jdbcTemplate.query(genreQuery, (rs, rowNum) -> {
@@ -162,6 +169,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void remove(Long id) {
+        String sqlQuery = "DELETE FROM films WHERE id=?";
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
+    @Override
     public List<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
         return getAll().stream()
                 .filter(genreId != null ? f -> f.getGenres().stream()
@@ -175,11 +188,13 @@ public class FilmDbStorage implements FilmStorage {
     private String getSqlQueryForSort(String sortBy) {
         switch (sortBy) {
             case "year":
-                return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description\n" +
+                return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description, count(fl.user_id) as fl_rate\n" +
                         "from films as f\n" +
                         "join rating r on r.id = f.rating_id\n" +
+                        "left join film_likes fl on f.id = fl.film_id\n" +
                         "join film_director fd on f.id = fd.film_id\n" +
                         "where fd.director_id = ?\n" +
+                        "group by f.id\n" +
                         "order by f.release_date";
 
             case "likes":
@@ -191,7 +206,8 @@ public class FilmDbStorage implements FilmStorage {
                         "       f.duration     as duration,\n" +
                         "       f.rating_id    as mta_id,\n" +
                         "       r.name         as mta_name,\n" +
-                        "       r.description  as mta_description\n" +
+                        "       r.description  as mta_description,\n" +
+                        "       count(fl.user_id) as fl_rate\n" +
                         "from films as f\n" +
                         "         left join film_likes fl on f.id = fl.film_id\n" +
                         "         join rating r on r.id = f.rating_id\n" +
@@ -246,7 +262,7 @@ public class FilmDbStorage implements FilmStorage {
     private Film getFilm(ResultSet rs, int rowNum) throws SQLException {
         Long id = rs.getLong("id");
         String name = rs.getString("name");
-        Long rate = rs.getLong("rate");
+        Long rate = rs.getLong("fl_rate");
         String description = rs.getString("description");
         LocalDate releaseDate = rs.getDate("release_date").toLocalDate();
         int duration = rs.getInt("duration");

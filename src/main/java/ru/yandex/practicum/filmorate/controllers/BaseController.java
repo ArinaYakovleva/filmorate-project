@@ -33,4 +33,8 @@ public abstract class BaseController<T extends Model, S extends CommonService<T>
         return service.getOne(id);
     }
 
+    @Override
+    public void remove(Long id) {
+        service.remove(id);
+    }
 }

@@ -15,4 +15,5 @@ public interface CommonService<T extends Model> {
 
     T getOne(Long id);
 
+    void remove(Long id);
 }

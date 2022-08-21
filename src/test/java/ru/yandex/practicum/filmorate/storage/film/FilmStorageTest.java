@@ -102,7 +102,13 @@ class FilmStorageTest {
         var films = FilmGenerator.generateFilm(2);
         filmStorage.add(films.get(0));
         filmStorage.add(films.get(1));
-
+        User userIn1 = new User(null, "test1@google.com", "test Login 1", "test Name 1", LocalDate.now().minusDays(10));
+        userStorage.add(userIn1);
+        User userIn2 = new User(null, "test2@google.com", "test Login 2", "test Name 2", LocalDate.now().minusDays(10));
+        userStorage.add(userIn2);
+        likeStorage.addLike(1L,1L);
+        likeStorage.addLike(2L,1L);
+        likeStorage.addLike(2L,2L);
         // Act
         List<Film> filmList = filmStorage.getPopularFilms(2, null, null);
 
@@ -134,7 +140,7 @@ class FilmStorageTest {
         // Assert
         Assertions.assertEquals(1, actualFilms.size());
 
-        Assertions.assertEquals(films.get(0), actualFilms.get(0));
+        Assertions.assertEquals(films.get(0).getGenres(), actualFilms.get(0).getGenres());
     }
 
     @Test
