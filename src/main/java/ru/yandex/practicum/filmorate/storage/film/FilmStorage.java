@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FilmStorage extends BaseStorage<Film> {
 
-    List<Film> getPopularFilms(Integer count);
+    List<Film> getPopularFilms(Integer count, Long genreId, Integer year);
 
     List<Film> getDirectorFilms(Long directorId, String sortBy);
 }
