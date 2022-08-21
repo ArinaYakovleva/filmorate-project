@@ -30,4 +30,8 @@ public class FilmController extends BaseController<Film, FilmService> {
         return service.getDirectorFilms(directorId, sortBy);
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        return service.getCommonFilms(userId, friendId);
+    }
 }

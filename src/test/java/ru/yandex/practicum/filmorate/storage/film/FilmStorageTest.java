@@ -228,4 +228,27 @@ class FilmStorageTest {
         assertThat(filmsOrderedByLikesCount.get(1).getId()).isEqualTo(1);
     }
 
+    @Test
+    public void getCommonFilms() {
+        var filmIn = FilmGenerator.generateFilm();
+        filmStorage.add(filmIn);
+        userStorage.add(new User(
+                1L,
+                "emailOne@mail.com",
+                "testOne",
+                "TestOne",
+                LocalDate.now().minusDays(1)));
+       userStorage.add(new User(
+                2L,
+                "emailTwo@mail.com",
+                "testTwo",
+                "TestTwo",
+                LocalDate.now().minusDays(1)));
+        likeStorage.addLike(1L, 1L);
+        likeStorage.addLike(1L, 2L);
+
+        List<Film> commonFilms = filmStorage.getCommonFilms(1L, 2L);
+        Assertions.assertEquals(1, commonFilms.size());
+        Assertions.assertEquals(1L, commonFilms.get(0).getId());
+    }
 }

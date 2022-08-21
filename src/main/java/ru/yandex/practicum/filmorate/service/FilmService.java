@@ -33,4 +33,8 @@ public class FilmService extends BaseService<Film, FilmStorage> {
     public List<Film> getDirectorFilms(Long directorId, String sortBy) {
         return storage.getDirectorFilms(directorId, sortBy);
     }
+
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        return storage.getCommonFilms(userId, friendId);
+    }
 }
