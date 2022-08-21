@@ -95,4 +95,14 @@ CREATE TABLE IF NOT EXISTS rating_reviews (
     CONSTRAINT pk_ratings_of_reviews PRIMARY KEY (review_id, user_id),
     CONSTRAINT fk_ratings_of_reviews FOREIGN KEY (user_id) REFERENCES users(id) on delete cascade,
     CONSTRAINT fk_reviews_review_id FOREIGN KEY (review_id) REFERENCES reviews(review_id) on delete cascade
-)
+);
+
+CREATE TABLE IF NOT EXISTS event_feed (
+    event_id bigint PRIMARY KEY AUTO_INCREMENT,
+    user_id bigint,
+    event_type varchar,
+    operation varchar,
+    entity_id bigint,
+    timestamp timestamp,
+    CONSTRAINT fk_event_feed_user_id FOREIGN KEY(user_id) REFERENCES users (id) on update cascade on delete cascade
+);
