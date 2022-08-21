@@ -6,6 +6,8 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.logging.LogEventFeed;
+import ru.yandex.practicum.filmorate.storage.feed.logging.LogEventFeedAround;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +24,7 @@ public class ReviewDbStorage implements IReviewStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @LogEventFeed
     @Override
     public Review add(Review data) {
         String sqlQuery = "INSERT INTO reviews (content, is_positive, user_id, film_id) " +
@@ -40,6 +43,7 @@ public class ReviewDbStorage implements IReviewStorage {
         return getOne((Long) keyHolder.getKey());
     }
 
+    @LogEventFeed
     @Override
     public Review edit(Review data) {
         String sqlQuery = "UPDATE reviews SET content=?, is_positive=? WHERE review_id=?";
@@ -85,6 +89,7 @@ public class ReviewDbStorage implements IReviewStorage {
         return reviews.size() == 0 ? null : reviews.get(0);
     }
 
+    @LogEventFeedAround
     @Override
     public void delete(Long reviewId) {
         String sqlQuery = "DELETE FROM reviews WHERE review_id=?";

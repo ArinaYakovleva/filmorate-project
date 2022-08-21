@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.List;
 
 @SpringBootTest
-@AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class ReviewDbStorageTest {
     private final IReviewStorage reviewStorage;
     private final IUserStorage userStorage;
