@@ -22,4 +22,9 @@ public class FilmController extends BaseController<Film, FilmService> {
         return service.getPopularFilms(count);
     }
 
+    @GetMapping("/director/{directorId}")
+    public List<Film> getDirectorFilms(@PathVariable Long directorId, @RequestParam String sortBy) {
+        return service.getDirectorFilms(directorId, sortBy);
+    }
+
 }

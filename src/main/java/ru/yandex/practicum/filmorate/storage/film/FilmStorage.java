@@ -9,4 +9,5 @@ public interface FilmStorage extends BaseStorage<Film> {
 
     List<Film> getPopularFilms(Integer count);
 
+    List<Film> getDirectorFilms(Long directorId, String sortBy);
 }

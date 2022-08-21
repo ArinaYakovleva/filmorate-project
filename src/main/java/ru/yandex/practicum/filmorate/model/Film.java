@@ -22,6 +22,7 @@ public class Film extends Model {
     private Long rate = 0L;
     @NonNull
     private MPARating mpa;
+    private Set<Director> directors = new HashSet<>();
     private Set<Genre> genres = new HashSet<>();
 
     @Size(max = 200, message = "Описание фильма не должно превышать 200 символов")

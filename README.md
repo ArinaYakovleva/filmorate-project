@@ -2,7 +2,7 @@
 Template repository for Filmorate project.
 ### ER Diagram:
 
-<img height="600" src="https://raw.githubusercontent.com/Dantelain/java-filmorate/add-database/ER%20Diagram.svg" title="ER-Diagram" width="800"/>
+<img src="./Diagram.png" width="800"/>
 
 ### Запросы:
 Вывести список всех пользователей:
