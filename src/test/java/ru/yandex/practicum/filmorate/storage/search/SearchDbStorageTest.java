@@ -17,12 +17,12 @@ import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.ILikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -43,11 +43,16 @@ public class SearchDbStorageTest {
     private Film fourth;
 
     @BeforeAll
-    public void init(){
+    public void init() {
         Set<Director> oneDirector =
-                new HashSet<>(){{add(directorStorage.getOne(1L));}}; //Тарантино
+                new HashSet<>() {{
+                    add(directorStorage.getOne(1L));
+                }}; //Тарантино
         Set<Director> twoDirectors =
-                new HashSet<>(){{add(directorStorage.getOne(1L)); add(directorStorage.getOne(2L));}}; //Тарантино и Спилберг
+                new HashSet<>() {{
+                    add(directorStorage.getOne(1L));
+                    add(directorStorage.getOne(2L));
+                }}; //Тарантино и Спилберг
 
         first = new Film.FilmBuilder(null)
                 .withName("Фильм")
@@ -89,9 +94,9 @@ public class SearchDbStorageTest {
         filmStorage.add(third);
         filmStorage.add(fourth);
 
-        userStorage.add(new User(1L, "email@email.com", "login1", null, LocalDate.of(1997, 10,10)));
-        userStorage.add(new User(2L, "email@email.com", "login1", null, LocalDate.of(1997, 10,10)));
-        userStorage.add(new User(3L, "email@email.com", "login1", null, LocalDate.of(1997, 10,10)));
+        userStorage.add(new User(1L, "email@email.com", "login1", null, LocalDate.of(1997, 10, 10)));
+        userStorage.add(new User(2L, "email@email.com", "login1", null, LocalDate.of(1997, 10, 10)));
+        userStorage.add(new User(3L, "email@email.com", "login1", null, LocalDate.of(1997, 10, 10)));
 
         //Добавил лайки в порядке уменьшения
         likeStorage.addLike(1L, 1L);

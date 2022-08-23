@@ -45,15 +45,18 @@ public class ReviewService extends ValidateService implements IReviewService {
 
     @Override
     public Review edit(Review data) {
-        validateId(data.getFilmId(), data.getUserId());
+        Long filmId = data.getFilmId();
+        Long reviewId = data.getReviewId();
+        Long userId = data.getUserId();
+
+        validateId(filmId, userId);
         Review review = storage.edit(data);
         if (review == null) {
-            String errorMessage = String.format("Не найдена запись с reviewId=%d, filmId=%d",
-                    data.getReviewId(), data.getFilmId());
+            String errorMessage = String.format("Не найдена запись с reviewId=%d, filmId=%d", reviewId, filmId);
             log.error(errorMessage);
             throw new NotFoundException(errorMessage);
         }
-        log.info(String.format("Обновлен отзыв с ID=%d: %s", data.getReviewId(), review));
+        log.info(String.format("Обновлен отзыв с ID=%d: %s", reviewId, review));
         return review;
     }
 
@@ -61,7 +64,8 @@ public class ReviewService extends ValidateService implements IReviewService {
     public Review getOne(Long id) {
         Review review = storage.getOne(id);
         if (review == null) {
-            throw getNotFoundError(id);
+            String errorMessage = String.format("Отзыв с ID %d не найден", id);
+            throw new NotFoundException(errorMessage);
         }
         return review;
     }
@@ -90,10 +94,5 @@ public class ReviewService extends ValidateService implements IReviewService {
             throw new NotFoundException(String.format("Не найден отзыв с reviewId=%d, userId=%d", reviewId, userId));
         }
         log.info(String.format("Пользователь с ID=%d удалил лайк у отзыва с ID=%d", userId, reviewId));
-    }
-
-    private BadRequestException getNotFoundError(Long id) {
-        String errorMessage = String.format("Отзыв с ID %d не найден", id);
-        throw new NotFoundException(errorMessage);
     }
 }

@@ -7,15 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.testUtils.FilmGenerator;
-import ru.yandex.practicum.filmorate.model.MPARating;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.director.IDirectorStorage;
 import ru.yandex.practicum.filmorate.storage.like.ILikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
+import ru.yandex.practicum.filmorate.testUtils.FilmGenerator;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -287,7 +283,7 @@ class FilmStorageTest {
                 "testOne",
                 "TestOne",
                 LocalDate.now().minusDays(1)));
-       userStorage.add(new User(
+        userStorage.add(new User(
                 2L,
                 "emailTwo@mail.com",
                 "testTwo",

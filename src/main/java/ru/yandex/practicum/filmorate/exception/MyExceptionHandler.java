@@ -20,9 +20,10 @@ public class MyExceptionHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<?> badDataAccessException(DataAccessException e){
+    public ResponseEntity<?> badDataAccessException(DataAccessException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
     @ExceptionHandler
     public ResponseEntity<?> notFoundException(NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

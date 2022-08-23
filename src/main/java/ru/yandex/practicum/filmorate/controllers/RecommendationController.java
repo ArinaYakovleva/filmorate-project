@@ -11,8 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-public class RecommendationController
-{
+public class RecommendationController {
     private final RecommendationService recommendationService;
 
     protected RecommendationController(RecommendationService service) {

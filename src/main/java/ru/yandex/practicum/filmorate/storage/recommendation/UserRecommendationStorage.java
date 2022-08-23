@@ -25,23 +25,23 @@ public class UserRecommendationStorage implements IRecommendationStorage {
         var listOfFilms = new ArrayList<Film>();
 
         String queryForUserId =
-                "SELECT USER_ID, " +
-                        "COUNT(FILM_ID) as cnt " +
-                        "FROM FILM_LIKES " +
-                        "WHERE FILM_ID IN (SELECT FILM_ID FROM FILM_LIKES WHERE USER_ID = ?) " +
-                        "AND USER_ID != ? " +
-                        "GROUP BY USER_ID " +
+                "SELECT user_id, " +
+                        "count(film_id) AS cnt " +
+                        "FROM film_likes " +
+                        "WHERE film_id IN (SELECT film_id FROM film_likes WHERE user_id = ?) " +
+                        "AND user_id != ? " +
+                        "GROUP BY user_id " +
                         "ORDER BY cnt DESC " +
                         "LIMIT 1";
         var rs = jdbcTemplate.queryForRowSet(queryForUserId, userId, userId);
         if (rs.first()) {
             var userIdWithIntersections = rs.getLong("USER_ID");
             String queryForFilms =
-                    "SELECT FILM_ID " +
-                            "FROM FILM_LIKES " +
-                            "WHERE USER_ID = ? AND FILM_ID NOT IN " +
-                            "(SELECT FILM_ID FROM FILM_LIKES " +
-                            "WHERE USER_ID = ?)";
+                    "SELECT film_id " +
+                            "FROM film_likes " +
+                            "WHERE user_id = ? AND film_id NOT IN " +
+                            "(SELECT film_id FROM film_likes " +
+                            "WHERE user_id = ?)";
 
             var rsFilms = jdbcTemplate.queryForRowSet(queryForFilms, userIdWithIntersections, userId);
             while (rsFilms.next()) {

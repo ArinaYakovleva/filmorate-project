@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @EqualsAndHashCode
 public class Review {
-    private Long reviewId;
     @NotNull
     private final String content;
     @NotNull
@@ -17,5 +16,6 @@ public class Review {
     private final Long userId;
     @NotNull
     private final Long filmId;
+    private Long reviewId;
     private Long useful;
 }
