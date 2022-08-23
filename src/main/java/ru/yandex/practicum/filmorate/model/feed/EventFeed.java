@@ -11,13 +11,13 @@ import lombok.NonNull;
 @NoArgsConstructor
 public class EventFeed {
 
-    Long eventId;
+    private Long eventId;
     @NonNull
-    Long userId;
+    private Long userId;
     @NonNull
-    Long entityId;
-    EventType eventType;
-    Operation operation;
-    Long timestamp;
+    private Long entityId;
+    private EventType eventType;
+    private Operation operation;
+    private Long timestamp;
 
 }

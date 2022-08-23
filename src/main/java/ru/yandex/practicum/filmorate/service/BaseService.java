@@ -43,6 +43,7 @@ public abstract class BaseService<T extends Model, R extends IBaseStorage<T>> ex
         validateId(id);
         storage.remove(id);
     }
+
     abstract protected void validate(T data);
 
 }

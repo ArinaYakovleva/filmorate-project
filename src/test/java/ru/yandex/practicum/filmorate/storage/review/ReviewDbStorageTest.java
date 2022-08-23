@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -26,10 +25,18 @@ import java.util.List;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class ReviewDbStorageTest {
+    private static Review goodReview;
     private final IReviewStorage reviewStorage;
     private final IUserStorage userStorage;
     private final IFilmStorage filmStorage;
-    private static Review goodReview;
+
+    @BeforeAll
+    public static void init() {
+        goodReview = new Review("Very bad film", false, 1L, 2L);
+        goodReview.setReviewId(2L);
+        goodReview.setUseful(1L);
+
+    }
 
     @BeforeEach
     public void init1() {
@@ -46,7 +53,7 @@ class ReviewDbStorageTest {
                 .withReleaseDate(LocalDate.of(2000, 1, 1))
                 .withDuration(120)
                 .withRate(1L)
-                .withMpa(new MPARating(1L,"G", "без ограничений"))
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
                 .withDirectors(new HashSet<>())
                 .build();
 
@@ -56,21 +63,13 @@ class ReviewDbStorageTest {
                 .withReleaseDate(LocalDate.of(2000, 1, 1))
                 .withDuration(120)
                 .withRate(1L)
-                .withMpa(new MPARating(1L,"G", "без ограничений"))
+                .withMpa(new MPARating(1L, "G", "без ограничений"))
                 .withDirectors(new HashSet<>())
                 .build();
 
         userStorage.add(user);
         filmStorage.add(film);
         filmStorage.add(film1);
-    }
-
-    @BeforeAll
-    public static void init() {
-        goodReview = new Review("Very bad film", false, 1L, 2L);
-        goodReview.setReviewId(2L);
-        goodReview.setUseful(1L);
-
     }
 
     @Test
@@ -104,18 +103,18 @@ class ReviewDbStorageTest {
 
     @Test
     public void getAllReviews() {
-         reviewStorage.add(new Review(
+        reviewStorage.add(new Review(
                 "Very bad film",
                 false,
                 1L,
                 1L));
-         Review newReview = new Review(
-                 "Very good film",
-                 true,
-                 1L,
-                 2L);
-         newReview.setUseful(1L);
-         reviewStorage.add(newReview);
+        Review newReview = new Review(
+                "Very good film",
+                true,
+                1L,
+                2L);
+        newReview.setUseful(1L);
+        reviewStorage.add(newReview);
 
         List<Review> reviewList = reviewStorage.getAll(null, 10);
         Assertions.assertEquals(2, reviewList.size());

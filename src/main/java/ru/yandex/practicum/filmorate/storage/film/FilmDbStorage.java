@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -24,7 +23,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component("filmStorageDB")
-@Slf4j
 public class FilmDbStorage implements IFilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -103,10 +101,10 @@ public class FilmDbStorage implements IFilmStorage {
 
     @Override
     public List<Film> getAll() {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
                 "FROM films f " +
-                "JOIN rating r on r.id = f.rating_id " +
-                "LEFT JOIN film_likes fl on f.id = fl.film_id " +
+                "JOIN rating r ON r.id = f.rating_id " +
+                "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
                 "GROUP BY f.id";
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm);
         return formFilmsFromQuery(filmList);
@@ -114,10 +112,10 @@ public class FilmDbStorage implements IFilmStorage {
 
     @Override
     public Film getOne(Long id) {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
                 "FROM films AS f " +
-                "JOIN rating r on r.id = f.rating_id " +
-                "LEFT JOIN film_likes fl on f.id = fl.film_id " +
+                "JOIN rating r ON r.id = f.rating_id " +
+                "LEFT JOIN film_likes fl ON f.id = fl.film_id " +
                 "WHERE f.id=? " +
                 "GROUP BY f.id";
         Film film = jdbcTemplate.queryForObject(sqlQuery, this::getFilm, id);
@@ -161,66 +159,50 @@ public class FilmDbStorage implements IFilmStorage {
                 .collect(Collectors.toList());
     }
 
-    private String getSqlQueryForSort(String sortBy) {
-        switch (sortBy) {
-            case "year":
-                return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description, count(fl.user_id) as fl_rate\n" +
-                        "from films as f\n" +
-                        "join rating r on r.id = f.rating_id\n" +
-                        "left join film_likes fl on f.id = fl.film_id\n" +
-                        "join film_director fd on f.id = fd.film_id\n" +
-                        "where fd.director_id = ?\n" +
-                        "group by f.id\n" +
-                        "order by f.release_date";
+    private String getSqlQueryForSortByYear() {
+        return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description, count(fl.user_id) as fl_rate\n" +
+                "from films as f\n" +
+                "join rating r on r.id = f.rating_id\n" +
+                "left join film_likes fl on f.id = fl.film_id\n" +
+                "join film_director fd on f.id = fd.film_id\n" +
+                "where fd.director_id = ?\n" +
+                "group by f.id\n" +
+                "order by f.release_date";
+    }
 
-            case "likes":
-                return "select f.id           as id,\n" +
-                        "       f.name         as name,\n" +
-                        "       f.rate         as rate,\n" +
-                        "       f.description  as description,\n" +
-                        "       f.release_date as release_date,\n" +
-                        "       f.duration     as duration,\n" +
-                        "       f.rating_id    as mta_id,\n" +
-                        "       r.name         as mta_name,\n" +
-                        "       r.description  as mta_description,\n" +
-                        "       count(fl.user_id) as fl_rate\n" +
-                        "from films as f\n" +
-                        "         left join film_likes fl on f.id = fl.film_id\n" +
-                        "         join rating r on r.id = f.rating_id\n" +
-                        "         join film_director fd on f.id = fd.film_id\n" +
-                        "where fd.director_id = ?\n" +
-                        "group by f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.rating_id, r.name, r.description\n" +
-                        "order by count(fl.film_id)";
-            case "search":
-                return "select f.id              as id,\n" +
-                        "       f.name            as name,\n" +
-                        "       f.rate            as rate,\n" +
-                        "       f.description     as description,\n" +
-                        "       f.release_date    as release_date,\n" +
-                        "       f.duration        as duration,\n" +
-                        "       f.rating_id       as mta_id,\n" +
-                        "       r.name            as mta_name,\n" +
-                        "       r.description     as mta_description,\n" +
-                        "       count(fl.user_id) as fl_rate\n" +
-                        "from films as f\n" +
-                        "         left join film_likes fl on f.id = fl.film_id\n" +
-                        "         join rating r on r.id = f.rating_id\n" +
-                        "         left join film_director fd on f.id = fd.film_id\n" +
-                        "         left join director d on d.id = fd.director_id\n" +
-                        "where lower(f.name) like '%' || :titleQuery || '%'\n" +
-                        "   or lower(d.name) like '%' || :directorQuery || '%'\n" +
-                        "group by f.id, r.id\n" +
-                        "order by count(fl.film_id) desc";
-            default:
-                String message = "Передан некорректный параметр";
-                log.warn(message);
-                throw new ValidationException(message, sortBy);
-        }
+    private String getSqlQueryForSortByLike() {
+        return "select f.id           as id,\n" +
+                "       f.name         as name,\n" +
+                "       f.rate         as rate,\n" +
+                "       f.description  as description,\n" +
+                "       f.release_date as release_date,\n" +
+                "       f.duration     as duration,\n" +
+                "       f.rating_id    as mta_id,\n" +
+                "       r.name         as mta_name,\n" +
+                "       r.description  as mta_description,\n" +
+                "       count(fl.user_id) as fl_rate\n" +
+                "from films as f\n" +
+                "         left join film_likes fl on f.id = fl.film_id\n" +
+                "         join rating r on r.id = f.rating_id\n" +
+                "         join film_director fd on f.id = fd.film_id\n" +
+                "where fd.director_id = ?\n" +
+                "group by f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.rating_id, r.name, r.description\n" +
+                "order by count(fl.film_id)";
     }
 
     @Override
     public List<Film> getDirectorFilms(Long id, String sortBy) {
-        String sqlQuery = getSqlQueryForSort(sortBy);
+        String sqlQuery;
+        switch (sortBy) {
+            case "year":
+                sqlQuery = getSqlQueryForSortByYear();
+                break;
+            case "likes":
+                sqlQuery = getSqlQueryForSortByLike();
+                break;
+            default:
+                throw new ValidationException("Передан некорректный параметр", sortBy);
+        }
         List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm, id);
         if (filmList.isEmpty()) {
             throw new NotFoundException("Фильмы не найдены");
@@ -230,12 +212,31 @@ public class FilmDbStorage implements IFilmStorage {
 
     @Override
     public List<Film> getFilmsBySearch(String directorQuery, String titleQuery) {
-        MapSqlParameterSource paramSource = new MapSqlParameterSource();
-        paramSource.addValue("directorQuery", directorQuery);
-        paramSource.addValue("titleQuery", titleQuery);
-        String sqlQuery = getSqlQueryForSort("search");
-        List<Film> films = getFilms(namedParameterJdbcTemplate.query(sqlQuery, paramSource, this::getFilm));
-        return films;
+        String sqlQuery = "SELECT f.id              AS id,\n" +
+                "       f.name            AS name,\n" +
+                "       f.rate            AS rate,\n" +
+                "       f.description     AS description,\n" +
+                "       f.release_date    AS release_date,\n" +
+                "       f.duration        AS duration,\n" +
+                "       f.rating_id       AS mta_id,\n" +
+                "       r.name            AS mta_name,\n" +
+                "       r.description     AS mta_description,\n" +
+                "       count(fl.user_id) AS fl_rate\n" +
+                "FROM films AS f\n" +
+                "         LEFT JOIN film_likes fl ON f.id = fl.film_id\n" +
+                "         JOIN rating r ON r.id = f.rating_id\n" +
+                "         LEFT JOIN film_director fd ON f.id = fd.film_id\n" +
+                "         LEFT JOIN director d ON d.id = fd.director_id\n" +
+                "WHERE lower(f.name) LIKE '%' || :titleQuery || '%'\n" +
+                "   OR lower(d.name) LIKE '%' || :directorQuery || '%'\n" +
+                "GROUP BY f.id, r.id\n" +
+                "ORDER BY count(fl.film_id) DESC";
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("directorQuery", directorQuery);
+        params.addValue("titleQuery", titleQuery);
+
+        return getFilms(namedParameterJdbcTemplate.query(sqlQuery, params, this::getFilm));
     }
 
     private List<Film> getFilms(List<Film> filmList) {
@@ -270,11 +271,11 @@ public class FilmDbStorage implements IFilmStorage {
 
     @Override
     public List<Film> getCommonFilms(Long userId, Long friendId) {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) as fl_rate " +
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
                 "FROM films f " +
-                "JOIN rating r on r.id = f.rating_id " +
-                "JOIN film_likes fl on f.id = fl.film_id " +
-                "JOIN film_likes fl2 on f.id=fl2.film_id " +
+                "JOIN rating r ON r.id = f.rating_id " +
+                "JOIN film_likes fl ON f.id = fl.film_id " +
+                "JOIN film_likes fl2 ON f.id=fl2.film_id " +
                 "WHERE fl.user_id=? AND fl2.user_id=? " +
                 "GROUP BY f.id " +
                 "ORDER BY fl_rate DESC;";
