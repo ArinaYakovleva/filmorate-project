@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
 @Data
 @EqualsAndHashCode
+@AllArgsConstructor
 public class Review {
     @NotNull
     private final String content;
@@ -15,7 +15,7 @@ public class Review {
     @NotNull
     private final Long userId;
     @NotNull
-    private final Long filmId;
+    private Long filmId;
     private Long reviewId;
     private Long useful;
 }

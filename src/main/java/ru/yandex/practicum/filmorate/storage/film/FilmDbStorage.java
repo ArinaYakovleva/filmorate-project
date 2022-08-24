@@ -63,42 +63,6 @@ public class FilmDbStorage implements IFilmStorage {
         return getOne(data.getId());
     }
 
-    private void changeFilmGenres(Film data) {
-        List<Long> listId = new ArrayList<>();
-        StringBuilder valueBuilder = new StringBuilder();
-        valueBuilder.append("DELETE FROM film_genre WHERE film_id=?; ");
-        listId.add(data.getId());
-        Set<Genre> genreSet = data.getGenres();
-        if (!genreSet.isEmpty()) {
-            valueBuilder.append("INSERT INTO film_genre(film_id,genre_id) VALUES ");
-            genreSet.forEach(item -> {
-                valueBuilder.append("(?, ?),");
-                listId.add(data.getId());
-                listId.add(item.getId());
-            });
-        }
-        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
-        jdbcTemplate.update(valueBuilder.toString(), listId.toArray());
-    }
-
-    private void changeFilmDirectors(Film film) {
-        List<Long> listId = new ArrayList<>();
-        StringBuilder valueBuilder = new StringBuilder();
-        valueBuilder.append("DELETE FROM film_director WHERE film_id=?; ");
-        listId.add(film.getId());
-        Set<Director> directorSet = film.getDirectors();
-        if (!directorSet.isEmpty()) {
-            valueBuilder.append("INSERT INTO film_director(film_id, director_id) VALUES ");
-            directorSet.forEach(director -> {
-                valueBuilder.append("(?, ?),");
-                listId.add(film.getId());
-                listId.add(director.getId());
-            });
-        }
-        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
-        jdbcTemplate.update(valueBuilder.toString(), listId.toArray());
-    }
-
     @Override
     public List<Film> getAll() {
         String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
@@ -151,43 +115,11 @@ public class FilmDbStorage implements IFilmStorage {
     @Override
     public List<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
         return getAll().stream()
-                .filter(genreId != null ? f -> f.getGenres().stream()
-                        .anyMatch(g -> g.getId().equals(genreId)) : film -> true)
-                .filter(year != null ? f -> f.getReleaseDate().getYear() == year : film -> true)
+                .filter(film -> filterFilmByGenre(film, genreId))
+                .filter(film -> filterFilmByYear(film, year))
                 .sorted(Comparator.comparing(Film::getRate, Comparator.reverseOrder()))
                 .limit(count)
                 .collect(Collectors.toList());
-    }
-
-    private String getSqlQueryForSortByYear() {
-        return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description, count(fl.user_id) as fl_rate\n" +
-                "from films as f\n" +
-                "join rating r on r.id = f.rating_id\n" +
-                "left join film_likes fl on f.id = fl.film_id\n" +
-                "join film_director fd on f.id = fd.film_id\n" +
-                "where fd.director_id = ?\n" +
-                "group by f.id\n" +
-                "order by f.release_date";
-    }
-
-    private String getSqlQueryForSortByLike() {
-        return "select f.id           as id,\n" +
-                "       f.name         as name,\n" +
-                "       f.rate         as rate,\n" +
-                "       f.description  as description,\n" +
-                "       f.release_date as release_date,\n" +
-                "       f.duration     as duration,\n" +
-                "       f.rating_id    as mta_id,\n" +
-                "       r.name         as mta_name,\n" +
-                "       r.description  as mta_description,\n" +
-                "       count(fl.user_id) as fl_rate\n" +
-                "from films as f\n" +
-                "         left join film_likes fl on f.id = fl.film_id\n" +
-                "         join rating r on r.id = f.rating_id\n" +
-                "         join film_director fd on f.id = fd.film_id\n" +
-                "where fd.director_id = ?\n" +
-                "group by f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.rating_id, r.name, r.description\n" +
-                "order by count(fl.film_id)";
     }
 
     @Override
@@ -239,8 +171,24 @@ public class FilmDbStorage implements IFilmStorage {
         return getFilms(namedParameterJdbcTemplate.query(sqlQuery, params, this::getFilm));
     }
 
+    @Override
+    public List<Film> getCommonFilms(Long userId, Long friendId) {
+        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
+                "FROM films f " +
+                "JOIN rating r ON r.id = f.rating_id " +
+                "JOIN film_likes fl ON f.id = fl.film_id " +
+                "JOIN film_likes fl2 ON f.id=fl2.film_id " +
+                "WHERE fl.user_id=? AND fl2.user_id=? " +
+                "GROUP BY f.id " +
+                "ORDER BY fl_rate DESC;";
+        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm, userId, friendId);
+        return formFilmsFromQuery(filmList);
+    }
+
     private List<Film> getFilms(List<Film> filmList) {
-        List<Long> listId = filmList.stream().map(Film::getId).collect(Collectors.toList());
+        List<Long> listId = filmList.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList());
         SqlParameterSource parameters = new MapSqlParameterSource("ids", listId);
         namedParameterJdbcTemplate.query("SELECT fg.film_id, ge.id, ge.name " +
                 "FROM film_genre AS fg " +
@@ -263,29 +211,39 @@ public class FilmDbStorage implements IFilmStorage {
             Long filmId = rs.getLong("film_id");
             Long directorId = rs.getLong("id");
             String name = rs.getString("name");
-            filmList.stream().filter(film -> film.getId().equals(filmId)).findFirst().get().getDirectors().add(new Director(directorId, name));
+            filmList.stream()
+                    .filter(film -> film.getId().equals(filmId))
+                    .findFirst()
+                    .get()
+                    .getDirectors()
+                    .add(new Director(directorId, name));
         });
 
         return filmList;
     }
 
-    @Override
-    public List<Film> getCommonFilms(Long userId, Long friendId) {
-        String sqlQuery = "SELECT f.*, r.id AS mta_id, r.name AS mta_name, r.description AS mta_description, count(fl.user_id) AS fl_rate " +
-                "FROM films f " +
-                "JOIN rating r ON r.id = f.rating_id " +
-                "JOIN film_likes fl ON f.id = fl.film_id " +
-                "JOIN film_likes fl2 ON f.id=fl2.film_id " +
-                "WHERE fl.user_id=? AND fl2.user_id=? " +
-                "GROUP BY f.id " +
-                "ORDER BY fl_rate DESC;";
-        List<Film> filmList = jdbcTemplate.query(sqlQuery, this::getFilm, userId, friendId);
-        return formFilmsFromQuery(filmList);
+    private Film getFilm(ResultSet rs, int rowNum) throws SQLException {
+
+        Long mtaId = rs.getLong("mta_id");
+        String mtaName = rs.getString("mta_name");
+        String mtaDescription = rs.getString("mta_description");
+
+        return new Film.FilmBuilder(rs.getLong("id"))
+                .withName(rs.getString("name"))
+                .withDescription(rs.getString("description"))
+                .withReleaseDate(rs.getDate("release_date").toLocalDate())
+                .withDuration(rs.getInt("duration"))
+                .withRate(rs.getLong("fl_rate"))
+                .withMpa(new MPARating(mtaId, mtaName, mtaDescription))
+                .build();
     }
 
     private List<Film> formFilmsFromQuery(List<Film> films) {
-        Map<Long, Film> filmMap = films.stream().collect(Collectors.toMap(Film::getId, f -> f));
-        List<Long> listId = films.stream().map(Film::getId).collect(Collectors.toList());
+        Map<Long, Film> filmMap = films.stream()
+                .collect(Collectors.toMap(Film::getId, f -> f));
+        List<Long> listId = films.stream()
+                .map(Film::getId)
+                .collect(Collectors.toList());
         SqlParameterSource parameters = new MapSqlParameterSource("ids", listId);
         namedParameterJdbcTemplate.query("SELECT fg.film_id, ge.id, ge.name " +
                 "FROM film_genre AS fg " +
@@ -310,19 +268,79 @@ public class FilmDbStorage implements IFilmStorage {
         return new ArrayList<>(filmMap.values());
     }
 
-    private Film getFilm(ResultSet rs, int rowNum) throws SQLException {
+    private void changeFilmGenres(Film data) {
+        List<Long> listId = new ArrayList<>();
+        StringBuilder valueBuilder = new StringBuilder();
+        valueBuilder.append("DELETE FROM film_genre WHERE film_id=?; ");
+        listId.add(data.getId());
+        Set<Genre> genreSet = data.getGenres();
+        if (!genreSet.isEmpty()) {
+            valueBuilder.append("INSERT INTO film_genre(film_id,genre_id) VALUES ");
+            genreSet.forEach(item -> {
+                valueBuilder.append("(?, ?),");
+                listId.add(data.getId());
+                listId.add(item.getId());
+            });
+        }
+        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
+        jdbcTemplate.update(valueBuilder.toString(), listId.toArray());
+    }
 
-        Long mtaId = rs.getLong("mta_id");
-        String mtaName = rs.getString("mta_name");
-        String mtaDescription = rs.getString("mta_description");
+    private void changeFilmDirectors(Film film) {
+        List<Long> listId = new ArrayList<>();
+        StringBuilder valueBuilder = new StringBuilder();
+        valueBuilder.append("DELETE FROM film_director WHERE film_id=?; ");
+        listId.add(film.getId());
+        Set<Director> directorSet = film.getDirectors();
+        if (!directorSet.isEmpty()) {
+            valueBuilder.append("INSERT INTO film_director(film_id, director_id) VALUES ");
+            directorSet.forEach(director -> {
+                valueBuilder.append("(?, ?),");
+                listId.add(film.getId());
+                listId.add(director.getId());
+            });
+        }
+        valueBuilder.deleteCharAt(valueBuilder.length() - 1);
+        jdbcTemplate.update(valueBuilder.toString(), listId.toArray());
+    }
 
-        return new Film.FilmBuilder(rs.getLong("id"))
-                .withName(rs.getString("name"))
-                .withDescription(rs.getString("description"))
-                .withReleaseDate(rs.getDate("release_date").toLocalDate())
-                .withDuration(rs.getInt("duration"))
-                .withRate(rs.getLong("fl_rate"))
-                .withMpa(new MPARating(mtaId, mtaName, mtaDescription))
-                .build();
+    private boolean filterFilmByGenre(Film film, Long genreId) {
+        return genreId == null || film.getGenres().stream()
+                .anyMatch(g -> g.getId().equals(genreId));
+    }
+
+    private boolean filterFilmByYear(Film film, Integer year) {
+        return year == null || film.getReleaseDate().getYear() == year;
+    }
+
+    private String getSqlQueryForSortByYear() {
+        return "select f.*, r.id as mta_id, r.name as mta_name, r.description as mta_description, count(fl.user_id) as fl_rate\n" +
+                "from films as f\n" +
+                "join rating r on r.id = f.rating_id\n" +
+                "left join film_likes fl on f.id = fl.film_id\n" +
+                "join film_director fd on f.id = fd.film_id\n" +
+                "where fd.director_id = ?\n" +
+                "group by f.id\n" +
+                "order by f.release_date";
+    }
+
+    private String getSqlQueryForSortByLike() {
+        return "select f.id           as id,\n" +
+                "       f.name         as name,\n" +
+                "       f.rate         as rate,\n" +
+                "       f.description  as description,\n" +
+                "       f.release_date as release_date,\n" +
+                "       f.duration     as duration,\n" +
+                "       f.rating_id    as mta_id,\n" +
+                "       r.name         as mta_name,\n" +
+                "       r.description  as mta_description,\n" +
+                "       count(fl.user_id) as fl_rate\n" +
+                "from films as f\n" +
+                "         left join film_likes fl on f.id = fl.film_id\n" +
+                "         join rating r on r.id = f.rating_id\n" +
+                "         join film_director fd on f.id = fd.film_id\n" +
+                "where fd.director_id = ?\n" +
+                "group by f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.rating_id, r.name, r.description\n" +
+                "order by count(fl.film_id)";
     }
 }

@@ -57,33 +57,33 @@ public class ReviewDbStorage implements IReviewStorage {
 
     @Override
     public List<Review> getAll(Long filmId, Integer count) {
-        String sqlQuery = "select r.user_id,\n" +
+        String sqlQuery = "SELECT r.user_id,\n" +
                 "       r.film_id,\n" +
                 "       r.content,\n" +
                 "       r.is_positive,\n" +
                 "       r.review_id,\n" +
-                "       ifnull(sum(case rr.is_positive when true then 1 when false then -1 end), 0) as useful\n" +
-                "from reviews r\n" +
-                "         left join rating_reviews rr on r.review_id = rr.review_id\n" +
-                "where r.film_id=coalesce(?, r.film_id)\n" +
-                "group by r.film_id, r.user_id\n" +
-                "order by useful desc\n" +
-                "limit ?;";
+                "       ifnull(sum(CASE rr.is_positive WHEN TRUE THEN 1 WHEN FALSE THEN -1 END), 0) AS useful\n" +
+                "FROM reviews r\n" +
+                "         LEFT JOIN rating_reviews rr ON r.review_id = rr.review_id\n" +
+                "WHERE r.film_id=coalesce(?, r.film_id)\n" +
+                "GROUP BY r.film_id, r.user_id, r.content\n" +
+                "ORDER BY useful DESC\n" +
+                "LIMIT ?;";
         return jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeReview(rs), filmId, count);
     }
 
     @Override
     public Review getOne(Long id) {
-        String sqlQuery = "select r.user_id,\n" +
+        String sqlQuery = "SELECT r.user_id,\n" +
                 "       r.film_id,\n" +
                 "       r.is_positive,\n" +
                 "       r.content,\n" +
                 "       r.review_id,\n" +
-                "       ifnull(sum(case rr.is_positive when true then 1 when false then -1 end), 0) as useful\n" +
-                "from reviews r\n" +
-                "         left join rating_reviews rr on r.review_id = rr.review_id\n" +
-                "where r.review_id = ?\n" +
-                "group by r.film_id, r.user_id\n";
+                "       ifnull(sum(CASE rr.is_positive WHEN TRUE THEN 1 WHEN FALSE THEN -1 END), 0) AS useful\n" +
+                "FROM reviews r\n" +
+                "         LEFT JOIN rating_reviews rr ON r.review_id = rr.review_id\n" +
+                "WHERE r.review_id = ?\n" +
+                "GROUP BY r.film_id, r.user_id\n";
 
         List<Review> reviews = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeReview(rs), id);
         return reviews.size() == 0 ? null : reviews.get(0);
@@ -109,13 +109,12 @@ public class ReviewDbStorage implements IReviewStorage {
     }
 
     private Review makeReview(ResultSet resultSet) throws SQLException {
-        Review review = new Review(
+        return new Review(
                 resultSet.getString("content"),
                 resultSet.getBoolean("is_positive"),
                 resultSet.getLong("user_id"),
-                resultSet.getLong("film_id"));
-        review.setUseful(resultSet.getLong("useful"));
-        review.setReviewId(resultSet.getLong("review_id"));
-        return review;
+                resultSet.getLong("film_id"),
+                resultSet.getLong("review_id"),
+                resultSet.getLong("useful"));
     }
 }
