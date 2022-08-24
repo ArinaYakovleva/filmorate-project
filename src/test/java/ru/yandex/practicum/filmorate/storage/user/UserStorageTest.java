@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.ILikeStorage;
@@ -102,6 +103,18 @@ class UserStorageTest {
     @Test
     public void testRecommendations() {
         // Arrange
+        var user = getInitializedUsers().get(0);
+        var film = getInitializedFilms().get(2);
+
+        // Act
+        var actualFilms = recommendationStorage.getRecommendations(user.getId());
+
+        // Assert
+        Assertions.assertEquals(1, actualFilms.size());
+        Assertions.assertEquals(film.getId(), actualFilms.get(0).getId());
+    }
+
+    private List<User> getInitializedUsers() {
         var users = UserGenerator.getUsers(3);
         var user1 = users.get(0);
         var user2 = users.get(1);
@@ -111,6 +124,10 @@ class UserStorageTest {
         userStorage.add(user2);
         userStorage.add(user3);
 
+        return users;
+    }
+
+    private List<Film> getInitializedFilms() {
         var films = FilmGenerator.generateFilm(4);
         var film1 = films.get(0);
         var film2 = films.get(1);
@@ -122,19 +139,14 @@ class UserStorageTest {
         filmStorage.add(film3);
         filmStorage.add(film4);
 
-        likeStorage.addLike(film1.getId(), user1.getId());
-        likeStorage.addLike(film2.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), 1L);
+        likeStorage.addLike(film2.getId(), 1L);
 
-        likeStorage.addLike(film1.getId(), user2.getId());
-        likeStorage.addLike(film3.getId(), user2.getId());
+        likeStorage.addLike(film1.getId(), 2L);
+        likeStorage.addLike(film3.getId(), 2L);
 
-        likeStorage.addLike(film4.getId(), user3.getId());
+        likeStorage.addLike(film4.getId(), 3L);
 
-        // Act
-        var actualFilms = recommendationStorage.getRecommendations(user1.getId());
-
-        // Assert
-        Assertions.assertEquals(1, actualFilms.size());
-        Assertions.assertEquals(film3.getId(), actualFilms.get(0).getId());
+        return films;
     }
 }

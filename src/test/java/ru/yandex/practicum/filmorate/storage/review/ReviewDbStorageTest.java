@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.review;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,21 +24,14 @@ import java.util.List;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class ReviewDbStorageTest {
-    private static Review goodReview;
+    private Review goodReview;
+    private Review badReview;
     private final IReviewStorage reviewStorage;
     private final IUserStorage userStorage;
     private final IFilmStorage filmStorage;
 
-    @BeforeAll
-    public static void init() {
-        goodReview = new Review("Very bad film", false, 1L, 2L);
-        goodReview.setReviewId(2L);
-        goodReview.setUseful(1L);
-
-    }
-
     @BeforeEach
-    public void init1() {
+    public void init() {
         User user = new User(1L,
                 "user@mail.ru",
                 "user",
@@ -70,52 +62,54 @@ class ReviewDbStorageTest {
         userStorage.add(user);
         filmStorage.add(film);
         filmStorage.add(film1);
+
+        goodReview = new Review(
+                "Very bad film",
+                false,
+                1L,
+                2L,
+                1L,
+                0L);
+
+        badReview = new Review(
+                "Very bad film",
+                false,
+                1L,
+                1L,
+                2L,
+                0L);
+
+        reviewStorage.add(goodReview);
+        reviewStorage.add(badReview);
     }
 
     @Test
     public void createReview() {
-        Review review = reviewStorage.add(goodReview);
-        Assertions.assertEquals(1L, review.getReviewId());
+        Review review = reviewStorage.add(new Review(
+                "test review",
+                true,
+                1L,
+                2L,
+                3L,
+                0L
+        ));
+        List<Review> allReviews = reviewStorage.getAll(null, 10);
+
+        Assertions.assertEquals(3L, review.getReviewId());
+        Assertions.assertEquals(3, allReviews.size());
     }
 
     @Test
     public void editReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        addedReview.setReviewId(1L);
-        addedReview.setUseful(0L);
+        badReview.setReviewId(1L);
+        badReview.setFilmId(2L);
 
-        reviewStorage.add(addedReview);
-
-        Review review = new Review(
-                "Very good film",
-                true,
-                1L,
-                1L);
-        review.setReviewId(1L);
-        review.setUseful(0L);
-        Review updatedReview = reviewStorage.edit(review);
-        Assertions.assertEquals(review, updatedReview);
+        Review updatedReview = reviewStorage.edit(badReview);
+        Assertions.assertEquals(badReview, updatedReview);
     }
 
     @Test
     public void getAllReviews() {
-        reviewStorage.add(new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L));
-        Review newReview = new Review(
-                "Very good film",
-                true,
-                1L,
-                2L);
-        newReview.setUseful(1L);
-        reviewStorage.add(newReview);
-
         List<Review> reviewList = reviewStorage.getAll(null, 10);
         Assertions.assertEquals(2, reviewList.size());
 
@@ -131,82 +125,48 @@ class ReviewDbStorageTest {
 
     @Test
     public void getReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        addedReview.setReviewId(1L);
-        addedReview.setUseful(0L);
-        reviewStorage.add(addedReview);
-
         Review review = reviewStorage.getOne(1L);
-        Assertions.assertEquals(addedReview, review);
+        Assertions.assertEquals(goodReview, review);
     }
 
     @Test
     public void deleteReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        reviewStorage.add(addedReview);
         reviewStorage.delete(1L);
+
         List<Review> reviews = reviewStorage.getAll(null, 10);
-        Assertions.assertEquals(0, reviews.size());
+        Assertions.assertEquals(1, reviews.size());
     }
 
     @Test
     public void likeReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        reviewStorage.add(addedReview);
         reviewStorage.like(1L, 1L, true);
+
         Review review = reviewStorage.getOne(1L);
         Assertions.assertEquals(1, review.getUseful());
     }
 
     @Test
     public void dislikeReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        reviewStorage.add(addedReview);
         reviewStorage.like(1L, 1L, false);
+
         Review review = reviewStorage.getOne(1L);
         Assertions.assertEquals(-1, review.getUseful());
     }
 
     @Test
     public void deleteLikeReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        reviewStorage.add(addedReview);
         reviewStorage.like(1L, 1L, true);
         reviewStorage.deleteLike(1L, 1L, true);
+
         Review review = reviewStorage.getOne(1L);
         Assertions.assertEquals(0, review.getUseful());
     }
 
     @Test
     public void deleteDislikeReview() {
-        Review addedReview = new Review(
-                "Very bad film",
-                false,
-                1L,
-                1L);
-        reviewStorage.add(addedReview);
         reviewStorage.like(1L, 1L, false);
         reviewStorage.deleteLike(1L, 1L, false);
+
         Review review = reviewStorage.getOne(1L);
         Assertions.assertEquals(0, review.getUseful());
     }
