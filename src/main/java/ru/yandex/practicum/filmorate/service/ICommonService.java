@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.model.Model;
 
 import javax.validation.Valid;
 import java.util.List;
 
-public interface BaseStorage<T extends Model> {
+public interface ICommonService<T extends Model> {
 
     T add(@Valid T data);
 
@@ -15,4 +15,5 @@ public interface BaseStorage<T extends Model> {
 
     T getOne(Long id);
 
+    void remove(Long id);
 }

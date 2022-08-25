@@ -18,8 +18,20 @@ public class FilmController extends BaseController<Film, FilmService> {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        return service.getPopularFilms(count);
+    public List<Film> getPopularFilms(
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestParam(required = false) Long genreId,
+            @RequestParam(required = false) Integer year) {
+        return service.getPopularFilms(count, genreId, year);
     }
 
+    @GetMapping("/director/{directorId}")
+    public List<Film> getDirectorFilms(@PathVariable Long directorId, @RequestParam String sortBy) {
+        return service.getDirectorFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Long userId, @RequestParam Long friendId) {
+        return service.getCommonFilms(userId, friendId);
+    }
 }

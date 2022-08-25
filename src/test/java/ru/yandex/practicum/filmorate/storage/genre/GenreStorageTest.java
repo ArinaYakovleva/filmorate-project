@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class GenreStorageTest {
 
-    private final GenreStorage genreStorage;
+    private final IGenreStorage genreStorage;
 
     @Test
     public void testGenreById() {

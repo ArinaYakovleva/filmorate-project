@@ -17,7 +17,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.net.URI;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)

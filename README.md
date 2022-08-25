@@ -1,19 +1,27 @@
 # java-filmorate
+
 Template repository for Filmorate project.
+
 ### ER Diagram:
 
-<img height="600" src="https://raw.githubusercontent.com/Dantelain/java-filmorate/add-database/ER%20Diagram.svg" title="ER-Diagram" width="800"/>
+<img src="./Diagram.png" width="800"/>
 
 ### Запросы:
+
 Вывести список всех пользователей:
+
  ```
  SELECT * FROM users;
  ```
+
 Вывести список всех фильмов:
+
  ```
  SELECT * FROM films;
  ```
+
 Узнать рейтинг фильмов:
+
  ```
  SELECT 
    films.*,
@@ -22,7 +30,9 @@ Template repository for Filmorate project.
  JOIN film_likes fl ON fl.film_id=films.film_id
  GROUP BY fl.film_id;
  ```
+
 Узнать ТОП-10 фильмов по рейтингу:
+
  ```
  SELECT 
    films.*,
@@ -35,6 +45,7 @@ Template repository for Filmorate project.
  ```
 
 Список общих друзей:
+
  ```
  SELECT friend_id FROM friends 
  WHERE user_id = 1

@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 class MPAStorageTest {
 
-    private final MPAStorage mpaStorage;
+    private final IMPAStorage mpaStorage;
 
     @Test
     public void testMPAById() {
@@ -27,7 +27,7 @@ class MPAStorageTest {
     }
 
     @Test
-    public void testGenreAll() {
+    public void testMPAAll() {
         List<MPARating> listMPA = mpaStorage.getAll();
         assertThat(listMPA.size()).isEqualTo(5);
         assertThat(listMPA.get(0))

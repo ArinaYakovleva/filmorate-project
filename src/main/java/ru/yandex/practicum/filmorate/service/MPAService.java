@@ -3,17 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.MPARating;
-import ru.yandex.practicum.filmorate.storage.mpa.MPAStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.IMPAStorage;
 
 import java.util.List;
 
 @Service
 public class MPAService extends ValidateService {
 
-    private final MPAStorage mpaStorage;
+    private final IMPAStorage mpaStorage;
 
     @Autowired
-    public MPAService(MPAStorage mpaStorage) {
+    public MPAService(IMPAStorage mpaStorage) {
         this.mpaStorage = mpaStorage;
     }
 

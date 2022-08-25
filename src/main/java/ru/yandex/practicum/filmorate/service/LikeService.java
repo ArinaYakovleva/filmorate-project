@@ -1,14 +1,14 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.like.ILikeStorage;
 
 @Service
 public class LikeService extends ValidateService {
 
-    private final LikeStorage likeStorage;
+    private final ILikeStorage likeStorage;
 
-    public LikeService(LikeStorage likeStorage) {
+    public LikeService(ILikeStorage likeStorage) {
         this.likeStorage = likeStorage;
     }
 
